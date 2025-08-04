@@ -30,6 +30,7 @@ void MolPolEvent::Reset(){
 
   fThCoM = -1.e9;
   fPhCoM = -1.e9;
+  fDeltaTh = -1.e9;     //------------delta th added by faraz
   fEffXs = -1.e9*nanobarn;
   fAsym  = -1.e9;
   fUnpolWght = -1e9;
@@ -59,6 +60,8 @@ G4bool MolPolEvent::EventIsSane(){
   if( std::isnan(fThCoM) || std::isinf(fThCoM) ) return false;
   if( std::isnan(fPhCoM) || std::isinf(fPhCoM) ) return false;
 
+  if (std::isnan(fDeltaTh) || std::isinf(fDeltaTh)) return false;   //------------delta th added by faraz
+  
   if( std::isnan(fUnpolWght) || std::isinf(fUnpolWght) ) return false;
   if( std::isnan(fpolPlusWghtX) || std::isinf(fpolPlusWghtX) ) return false;
   if( std::isnan(fpolPlusWghtY) || std::isinf(fpolPlusWghtY) ) return false;

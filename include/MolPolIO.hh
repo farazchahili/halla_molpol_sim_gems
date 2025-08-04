@@ -70,6 +70,17 @@ private:
   G4double fpolMinusWghtZ;
   G4double fEvTargMom;
 
+  G4int    fEvCalCoin;
+  G4int    fEvHodCoin;
+
+  //added by faraz
+  G4double fEvDeltaTh;
+
+  G4bool   fEvCalHit1;
+  G4bool   fEvCalHit2;
+  G4bool   fEvHodHit1;
+  G4bool   fEvHodHit2;
+
   G4int fEvPart_PID[__IO_MAXHIT];
 
   G4double fEvPart_X[__IO_MAXHIT];

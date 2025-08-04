@@ -64,6 +64,12 @@ void MolPolIO::InitializeTree(){
 
   fTree->Branch("evPhcom", &fEvPhCoM,    "ev.phcom/D");
   fTree->Branch("evThcom", &fEvThCoM,    "ev.thcom/D");
+
+  //-----------------------------------------------------------------------------------------------addition by faraz
+  fTree->Branch("evDeltaTh", &fEvDeltaTh, "ev.deltath/D");
+
+
+
   fTree->Branch("evXs",    &fEvEffXs,    "ev.xs/D");
   fTree->Branch("evAsym",  &fEvAsym,     "ev.asym/D");
 
@@ -121,6 +127,8 @@ void MolPolIO::FillTree(){
     fprintf(stderr, "Error %s: %s line %d - Trying to fill non-existant tree\n", __PRETTY_FUNCTION__, __FILE__, __LINE__ );
     return;
   }
+  if(fEvCalHit1 && fEvCalHit2) fEvCalCoin = 1;
+  if(fEvHodHit1 && fEvHodHit2) fEvHodCoin = 1;
 
   fTree->Fill();
 }
@@ -128,6 +136,12 @@ void MolPolIO::FillTree(){
 void MolPolIO::Flush(){
   //  Set arrays to 0
   fNDetHit = 0;
+  fEvCalHit1 = false;
+  fEvCalHit2 = false;
+  fEvHodHit1 = false;
+  fEvHodHit2 = false;
+  fEvCalCoin = 0;
+  fEvHodCoin = 0;
 }
 
 void MolPolIO::WriteTree(){
@@ -200,6 +214,8 @@ void MolPolIO::SetEventData(MolPolEvent *ev){
   fEvEffXs   = ev->fEffXs/microbarn;
   fEvAsym    = ev->fAsym;
   fEvTargMom = ev->fTargMom;
+
+  fEvDeltaTh = ev->fDeltaTh/deg;
 
   fUnpolWght = ev->fUnpolWght;
   fpolPlusWghtX = ev->fpolPlusWghtX;

@@ -134,6 +134,14 @@ MolPolMessenger::MolPolMessenger(){
     fRadCorrCmd->SetGuidance("Radiative corrections? True:On False:Off");
     fRadCorrCmd->SetParameterName("radCorrections",false);
 
+    fInitRadCmd = new G4UIcmdWithABool("/MolPol/initRad", this);     /// added modular radiative corrections
+    fInitRadCmd->SetGuidance("Initial radiative corrections? True:On False:Off");
+    fInitRadCmd->SetParameterName("initRad", false);
+
+    fFinRadCmd = new G4UIcmdWithABool("/MolPol/finRad", this); /// added modular radiative corrections
+    fFinRadCmd->SetGuidance("Final radiative corrections? True:On False:Off");
+    fFinRadCmd->SetParameterName("finRad", false);
+
     fRemollMSFlagCmd = new G4UIcmdWithABool("/MolPol/remollMS",this);
     fRemollMSFlagCmd->SetGuidance("Remoll Multiple Scattering? True:On False:Off");
     fRemollMSFlagCmd->SetParameterName("remollMS",false);
@@ -150,12 +158,24 @@ MolPolMessenger::MolPolMessenger(){
     fTrackMollersOnlyCmd->SetGuidance("Track/Record only Moller Electrons? True:On False:Off | Default: True");
     fTrackMollersOnlyCmd->SetParameterName("targetPolPct",false);
 
+    //new additions for delta theta changes
+
+    fdeltathetaMinCmd = new G4UIcmdWithADoubleAndUnit("/MolPol/deltathetamin", this);
+    fdeltathetaMinCmd->SetGuidance("Set delta theta range minimum");
+    fdeltathetaMinCmd->SetParameterName("deltathetamin", false);
+
+    fdeltathetaMaxCmd = new G4UIcmdWithADoubleAndUnit("/MolPol/deltathetamax", this);
+    fdeltathetaMaxCmd->SetGuidance("Set delta theta range  maximum");
+    fdeltathetaMaxCmd->SetParameterName("deltathetamax", false);    
+
 }
 
 MolPolMessenger::~MolPolMessenger(){
   delete fLevchukEffectCmd;
   delete fTargPolCmd;
   delete fRadCorrCmd;
+  delete fInitRadCmd;  // modular rad corr
+  delete fFinRadCmd;
   delete fRemollMSFlagCmd;
   delete fXminCmd;
   delete fXmaxCmd;
@@ -176,6 +196,9 @@ MolPolMessenger::~MolPolMessenger(){
   delete fYCmd;
   delete fZCmd;
 
+  //new additions for delta theta changes
+  delete fdeltathetaMinCmd;
+  delete fdeltathetaMaxCmd;  
 }
 
 
@@ -188,6 +211,14 @@ void MolPolMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
   if( cmd == fRadCorrCmd ){
     G4bool flag = fRadCorrCmd->GetNewBoolValue(newValue);
     fPriGen->fRadCorrFlag = flag;
+  }
+  if (cmd == fInitRadCmd) {
+      G4bool flag = fInitRadCmd->GetNewBoolValue(newValue);
+      fPriGen->fInitRadFlag = flag;
+  }
+  if (cmd == fFinRadCmd) {
+      G4bool flag = fFinRadCmd->GetNewBoolValue(newValue);
+      fPriGen->fFinRadFlag = flag;
   }
   if( cmd == fRemollMSFlagCmd ){
     G4bool flag = fRemollMSFlagCmd->GetNewBoolValue(newValue);
@@ -296,6 +327,15 @@ void MolPolMessenger::SetNewValue(G4UIcommand* cmd, G4String newValue){
   } else if( cmd == fTrackMollersOnlyCmd ){
     G4bool x = fTrackMollersOnlyCmd->GetNewBoolValue(newValue);
     fStepAct->SetMollerTracksOnly( x );
+  }
+  
+  if (cmd == fdeltathetaMinCmd) {
+      G4double x = fdeltathetaMinCmd->GetNewDoubleValue(newValue);
+      fPriGen->fdeltathetaMin = x;
+  }
+  if (cmd == fdeltathetaMaxCmd) {
+      G4double x = fdeltathetaMaxCmd->GetNewDoubleValue(newValue);
+      fPriGen->fdeltathetaMax = x;
   }
 
 }

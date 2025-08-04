@@ -48,11 +48,14 @@ public:
   G4double fthetaMin, fthetaMax;
   G4double fthetaComMin, fthetaComMax;
   G4double fphiMin, fphiMax;
+  G4double fdeltathetaMin, fdeltathetaMax;
   G4String fBeamPol;
   void SourceModeSet(G4int );
   void SetGenerator(G4String genname){ gentype = genname; }
   G4bool fLevchukFlag;
   G4bool fRadCorrFlag;
+  G4bool fInitRadFlag;
+  G4bool fFinRadFlag;  
   G4bool fRemollMSFlag;
   G4double x1,x2,x3,x4,u1,u2,u3,u4,s;
 

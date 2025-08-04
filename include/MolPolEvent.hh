@@ -23,6 +23,7 @@ public:
   void SetAsymmetry( G4double Asym ){ fAsym = Asym; }
   void SetThCoM( G4double th ){fThCoM = th;}
   void SetPhCoM( G4double ph ){fPhCoM = ph;}
+  void SetDeltaTh(G4double dt) {fDeltaTh = dt;}   // added by faraz
   void SetTargetMomentum( G4double pt ){fTargMom = pt;}
 
   void Reset();
@@ -41,6 +42,7 @@ public:
 
   G4double fThCoM;
   G4double fPhCoM;
+  G4double fDeltaTh;   //------------delta th added by faraz
   G4double fEffXs;
   G4double fAsym;
   G4double fUnpolWght;

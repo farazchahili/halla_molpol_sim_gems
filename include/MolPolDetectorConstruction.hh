@@ -41,6 +41,19 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
 
     G4GenericMessenger *  fMessenger;
 
+    // Class members for GEM tracking
+    G4double              pTr1Pos_X;
+    G4double              pTr1Pos_Y;
+    G4double              pTr1Pos_Z;
+    G4double              pTr2Pos_X;
+    G4double              pTr2Pos_Y;
+    G4double              pTr2Pos_Z;
+    G4Box*                fTrackingSolidUS;
+    G4Box*                fTrackingSolidDS;
+    G4LogicalVolume*      fTrackingLogicalUS;
+    G4LogicalVolume*      fTrackingLogicalDS;
+    G4VPhysicalVolume *   fTrackingPhysVolUS;
+    G4VPhysicalVolume *   fTrackingPhysVolDS;
     G4double              fLeadJawGapWidth;
     G4double              fLeadJawsHLength;
     G4double              fLeadJawsZOrigin;
@@ -51,6 +64,8 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
     G4VPhysicalVolume *   fLeadJawsPhysicalRT;
     G4VPhysicalVolume *   fLeadJawsPhysicalRB;
 
+
+    //Class members for Pb Jaws
     G4VPhysicalVolume *   fTargetPhysVolume;
     G4double              fTargetFullLength;   //Used for Sanghwa's update to PrimaryGenerator and DetCon's Generic Messenger
     G4double              fTargetFullRadius;

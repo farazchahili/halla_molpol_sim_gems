@@ -86,6 +86,8 @@ MolPolPrimaryGeneratorAction::MolPolPrimaryGeneratorAction()
   fLEcorFac = 1.;
   //RADIATIVE CORRECTION CALCULATIONS - DEFAULT TO TRUE UNLESS OVERRIDDEN IN MACRO
   fRadCorrFlag = true;
+  fInitRadFlag = true;
+  fFinRadFlag  = true;
   //MOLPOL MSC ON/OFF FLAG -- DEFAULTS TO TRUE/ON
   fRemollMSFlag = true;
 
@@ -122,6 +124,8 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //direction at face of Target
       G4double thcom = acos(G4RandFlat::shoot(cos(fthetaComMax), cos(fthetaComMin)));
       G4double phcom = G4RandFlat::shoot(fphiMin, fphiMax); //deg
+      // new inputs for delta theta additions----------------------------------------------------------------------------------------------------------------faraz
+      G4double deltath = G4RandFlat::shoot(fdeltathetaMin, fdeltathetaMax);
 
       //zpos: random position within the target of length fTargLen (local coordinate)
       // vertex z position is calculated as vtx_z = zpos + fZ (target center) later
@@ -219,7 +223,8 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
       G4double s(0), u1(0), u2(0);
       G4double x1(1), x2(1);
-      if( fRadCorrFlag ){
+      if (fRadCorrFlag){fInitRadFlag = true; fFinRadFlag= true;}
+      if( fInitRadFlag ){
         //~~Choose X1 and X2 to account for initial state bremsstrahlung
         //~~First, choose the photon energy fractions according to roughly the
         //~~correct distribution (U1,U2 are MUCH more important that X1,X2)
@@ -242,13 +247,15 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //CALCULATE LAB FRAME MOMENTA AND SCATTERING ANGLES
       G4double p1 = pBeam/2 * x1 * ( 1 + cos(thcom) );
       G4double p2 = pBeam/2 * x1 * ( 1 - cos(thcom) );
-      G4double theta1 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1/p1 - 1/(x1*pBeam)) );
-      G4double theta2 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1/p2 - 1/(x1*pBeam)) );
+      // G4double theta1 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1/p1 - 1/(x1*pBeam)) );
+      // G4double theta2 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1/p2 - 1/(x1*pBeam)) );
+      G4double theta1 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1 / p1 - 1 / (x1 * pBeam))) + deltath;
+      G4double theta2 = sqrt(fLEcorFac * 2 * electron_mass_c2 * x2 * (1 / p2 - 1 / (x1 * pBeam))) + deltath;
 
       //INTERNAL FINAL STATE RADIATION
       G4double u3(0), u4(0);
       G4double x3(1), x4(1);
-      if( fRadCorrFlag ){
+      if( fFinRadFlag ){
         G4double rand = G4UniformRand();
         if( rand < rMin ) u3 = uMin;
         else u3 = pow(rand, 1/hBeta);
@@ -374,8 +381,9 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       G4double p1[3];
       G4double p2[3];
       G4double Azz;
+      G4double deltath;  // deltath addition
 
-      LUNDfile >> beamE >> thcom >> phcom >> xpos >> ypos >> zpos >> p1[0] >> p1[1] >> p1[2] >> p2[0] >> p2[1] >> p2[2] >> Azz;
+      LUNDfile >> beamE >> thcom >> phcom >> deltath >> xpos >> ypos >> zpos >> p1[0] >> p1[1] >> p1[2] >> p2[0] >> p2[1] >> p2[2] >> Azz;
 
       // Attach units
       beamE = beamE * GeV;
@@ -384,6 +392,8 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       zpos *= cm;
       thcom *= radian;
       phcom *= radian;
+      deltath *= radian;
+
       for(int i=0; i<3; i++)
   	  {
   	    p1[i] = p1[i] * GeV;
@@ -400,6 +410,7 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       fDefaultEvent->SetAsymmetry(Azz);
       fDefaultEvent->SetThCoM(thcom);
       fDefaultEvent->SetPhCoM(phcom);
+      fDefaultEvent->SetDeltaTh(deltath);
 
       particleGun->SetParticleEnergy( kinE1 );
       particleGun->SetParticlePosition( G4ThreeVector(xpos, ypos, zpos) );
@@ -463,6 +474,8 @@ void MolPolPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
       G4double thetaPos = G4RandFlat::shoot( fthetaMin, fthetaMax );
       G4double phiPos   = G4RandFlat::shoot( fphiMin, fphiMax );
+
+      G4double deltathPos = G4RandFlat::shoot(fdeltathetaMin, fdeltathetaMax);
 
       G4double me = electron_mass_c2;
       G4double beamE = fBeamE;

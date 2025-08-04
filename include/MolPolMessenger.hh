@@ -53,6 +53,8 @@ class MolPolMessenger : public G4UImessenger {
         G4UIcmdWithABool         *fLevchukEffectCmd;
         G4UIcmdWithADouble       *fTargPolCmd;
         G4UIcmdWithABool         *fRadCorrCmd;
+		G4UIcmdWithABool         *fInitRadCmd;
+		G4UIcmdWithABool         *fFinRadCmd;
         G4UIcmdWithABool         *fRemollMSFlagCmd;
 
 	G4UIcmdWithAnInteger *seedCmd;
@@ -79,6 +81,9 @@ class MolPolMessenger : public G4UImessenger {
 	G4UIcmdWithADoubleAndUnit *fthetaMaxCmd;
 	G4UIcmdWithADoubleAndUnit *fphiMinCmd;
 	G4UIcmdWithADoubleAndUnit *fphiMaxCmd;
+
+	G4UIcmdWithADoubleAndUnit* fdeltathetaMinCmd;
+	G4UIcmdWithADoubleAndUnit* fdeltathetaMaxCmd;
 
 	G4UIcmdWithADoubleAndUnit *fXCmd;
 	G4UIcmdWithADoubleAndUnit *fYCmd;
