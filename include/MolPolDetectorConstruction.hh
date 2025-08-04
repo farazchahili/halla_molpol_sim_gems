@@ -10,6 +10,7 @@ class G4Material;
 class G4VPhysicalVolume;
 class G4GenericMessenger;
 class G4Tubs;
+class G4Box;
 
 class MolPolDetectorConstruction : public G4VUserDetectorConstruction
 {
@@ -24,6 +25,10 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
     void SetDipolePbJawsGap(G4double val);
     void SetTargetThickness(G4double val);
     void SetTargetZPosition(G4double val);
+
+    void SetTr1Pos_z(G4double val);
+    void SetTr2Pos_z(G4double val);
+    void BuildTracking();    
 
     void UpdateGeometry();
 
