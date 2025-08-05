@@ -25,6 +25,13 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
     void SetTargetThickness(G4double val);
     void SetTargetZPosition(G4double val);
 
+    void SetTr1Pos_x(G4double val);
+    void SetTr1Pos_y(G4double val);
+    void SetTr2Pos_x(G4double val);
+    void SetTr2Pos_y(G4double val);
+    void SetTr3Pos_x(G4double val);
+    void SetTr3Pos_y(G4double val);
+
     void SetTr1Pos_z(G4double val);
     void SetTr2Pos_z(G4double val);
     void SetTr3Pos_z(G4double val);

@@ -38,6 +38,15 @@ MolPolDetectorConstruction::MolPolDetectorConstruction():
   fTargetFullRadius(15.0*mm),
   fTargetBeamlinePx( 0.0*mm),
   fTargetBeamlinePy( 0.0*mm),
+  pTr1Pos_X(0.0*cm),
+  pTr1Pos_Y(-41.0*cm),
+  pTr1Pos_Z(560.0*cm),
+  pTr2Pos_X(0.0*cm),
+  pTr2Pos_Y(-41.0*cm),
+  pTr2Pos_Z(610.0*cm),
+  pTr3Pos_X(0.0*cm),
+  pTr3Pos_Y(-41.0*cm),
+  pTr3Pos_Z(660.0*cm),
   fTargetBeamlinePz(67.4*mm)   //Default target-center position on beamline.
 {
   DefineGeometryCommands();
@@ -841,11 +850,6 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   G4double pTr2HLX    = 37.00 * cm;  G4double pTr2HLY   = 30.00 * cm;  G4double pTr2HLZ   = 0.001 * mm;
   G4double pTr3HLX    = 37.00 * cm;  G4double pTr3HLY   = 30.00 * cm;  G4double pTr3HLZ   = 0.001 * mm;
 
-  // Set tracker positions
-  pTr1Pos_X  = 0.00  * cm;  pTr1Pos_Y = -41.0* cm;  pTr1Pos_Z = 560.0*cm; // Upstream tracker (unchanged)
-  pTr2Pos_X  = 0.00  * cm;  pTr2Pos_Y = -41.0* cm;  pTr2Pos_Z = 610.0*cm; // Middle tracker
-  pTr3Pos_X  = 0.00  * cm;  pTr3Pos_Y = -41.0* cm;  pTr3Pos_Z = 660.0*cm; // Downstream tracker (was Tr2)
-
   fTrackingSolidUS  = new G4Box( "UpstreamTracking",  pTr1HLX, pTr1HLY, pTr1HLZ );
   fTrackingSolidMD  = new G4Box( "MiddleTracking",    pTr2HLX, pTr2HLY, pTr2HLZ );
   fTrackingSolidDS  = new G4Box( "DownstreamTracking",pTr3HLX, pTr3HLY, pTr3HLZ );
@@ -1080,6 +1084,12 @@ void MolPolDetectorConstruction::SetTargetZPosition(G4double val){
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
 
+void MolPolDetectorConstruction::SetTr1Pos_x(G4double val) { pTr1Pos_X = val; if(fTrackingPhysVolUS) fTrackingPhysVolUS->SetTranslation(G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z)); }
+void MolPolDetectorConstruction::SetTr1Pos_y(G4double val) { pTr1Pos_Y = val; if(fTrackingPhysVolUS) fTrackingPhysVolUS->SetTranslation(G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z)); }
+void MolPolDetectorConstruction::SetTr2Pos_x(G4double val) { pTr2Pos_X = val; if(fTrackingPhysVolMD) fTrackingPhysVolMD->SetTranslation(G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z)); }
+void MolPolDetectorConstruction::SetTr2Pos_y(G4double val) { pTr2Pos_Y = val; if(fTrackingPhysVolMD) fTrackingPhysVolMD->SetTranslation(G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z)); }
+void MolPolDetectorConstruction::SetTr3Pos_x(G4double val) { pTr3Pos_X = val; if(fTrackingPhysVolDS) fTrackingPhysVolDS->SetTranslation(G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z)); }
+void MolPolDetectorConstruction::SetTr3Pos_y(G4double val) { pTr3Pos_Y = val; if(fTrackingPhysVolDS) fTrackingPhysVolDS->SetTranslation(G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z)); }
 
 void MolPolDetectorConstruction::SetDipolePbJawsGap(G4double val){
   fLeadJawGapWidth = val;
@@ -1117,6 +1127,43 @@ void MolPolDetectorConstruction::DefineGeometryCommands(){
   targetThicknessCmd.SetParameterName("targetThickness", true);
   targetThicknessCmd.SetRange("targetThickness >= 0. && targetThickness < 100");//TODO: SET LIMIT BETWEEN 1 and 100 microns AFTER TESTING
   
+   // GEM tracker position commands
+  auto& GEM1XCmd = fMessenger->DeclareMethodWithUnit("GEM1X", "cm", &MolPolDetectorConstruction::SetTr1Pos_x, "Set X position of GEM1 (upstream)");
+  GEM1XCmd.SetParameterName("GEM1X", true);
+  GEM1XCmd.SetRange("GEM1X >= -100 && GEM1X <= 100");
+
+  auto& GEM1YCmd = fMessenger->DeclareMethodWithUnit("GEM1Y", "cm", &MolPolDetectorConstruction::SetTr1Pos_y, "Set Y position of GEM1 (upstream)");
+  GEM1YCmd.SetParameterName("GEM1Y", true);
+  GEM1YCmd.SetRange("GEM1Y >= -100 && GEM1Y <= 100");
+
+  auto& GEM1ZCmd = fMessenger->DeclareMethodWithUnit("GEM1Z", "cm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set Z position of GEM1 (upstream)");
+  GEM1ZCmd.SetParameterName("GEM1Z", true);
+  GEM1ZCmd.SetRange("GEM1Z >= 555.6 && GEM1Z <= 671.0");
+
+  auto& GEM2XCmd = fMessenger->DeclareMethodWithUnit("GEM2X", "cm", &MolPolDetectorConstruction::SetTr2Pos_x, "Set X position of GEM2 (middle)");
+  GEM2XCmd.SetParameterName("GEM2X", true);
+  GEM2XCmd.SetRange("GEM2X >= -100 && GEM2X <= 100");
+
+  auto& GEM2YCmd = fMessenger->DeclareMethodWithUnit("GEM2Y", "cm", &MolPolDetectorConstruction::SetTr2Pos_y, "Set Y position of GEM2 (middle)");
+  GEM2YCmd.SetParameterName("GEM2Y", true);
+  GEM2YCmd.SetRange("GEM2Y >= -100 && GEM2Y <= 100");
+
+  auto& GEM2ZCmd = fMessenger->DeclareMethodWithUnit("GEM2Z", "cm", &MolPolDetectorConstruction::SetTr2Pos_z, "Set Z position of GEM2 (middle)");
+  GEM2ZCmd.SetParameterName("GEM2Z", true);
+  GEM2ZCmd.SetRange("GEM2Z >= 555.6 && GEM2Z <= 671.0");
+
+  auto& GEM3XCmd = fMessenger->DeclareMethodWithUnit("GEM3X", "cm", &MolPolDetectorConstruction::SetTr3Pos_x, "Set X position of GEM3 (downstream)");
+  GEM3XCmd.SetParameterName("GEM3X", true);
+  GEM3XCmd.SetRange("GEM3X >= -100 && GEM3X <= 100");
+
+  auto& GEM3YCmd = fMessenger->DeclareMethodWithUnit("GEM3Y", "cm", &MolPolDetectorConstruction::SetTr3Pos_y, "Set Y position of GEM3 (downstream)");
+  GEM3YCmd.SetParameterName("GEM3Y", true);
+  GEM3YCmd.SetRange("GEM3Y >= -100 && GEM3Y <= 100");
+
+  auto& GEM3ZCmd = fMessenger->DeclareMethodWithUnit("GEM3Z", "cm", &MolPolDetectorConstruction::SetTr3Pos_z, "Set Z position of GEM3 (downstream)");
+  GEM3ZCmd.SetParameterName("GEM3Z", true);
+  GEM3ZCmd.SetRange("GEM3Z >= 555.6 && GEM3Z <= 671.0");
+
   // set the z position for the upstream GEM
   auto& track1Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingUS_Pos_z","mm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set z position of upstream tracker in mm.");
   track1Pos_zCmd.SetParameterName("trackingUS_Pos_z", true);
