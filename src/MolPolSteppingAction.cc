@@ -37,6 +37,9 @@ void MolPolSteppingAction::UserSteppingAction(const G4Step *aStep) {
        aTrack->GetMaterial()->GetName() != "MP_Scint" &&
        aTrack->GetVolume()->GetName() != "Target"  &&
        aTrack->GetVolume()->GetName() != "DipoleExitWindowR" &&
+       aTrack->GetVolume()->GetName() != "GEM.Tracking.US" &&
+       aTrack->GetVolume()->GetName() != "GEM.Tracking.MD" &&
+       aTrack->GetVolume()->GetName() != "GEM.Tracking.DS" &&
        aTrack->GetVolume()->GetName() != "DipoleExitWindowL")
     {
       aTrack->SetTrackStatus(fStopAndKill);

@@ -1,4 +1,3 @@
-
 #ifndef MolPolDetectorConstruction_h
 #define MolPolDetectorConstruction_h 1
 
@@ -28,6 +27,7 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
 
     void SetTr1Pos_z(G4double val);
     void SetTr2Pos_z(G4double val);
+    void SetTr3Pos_z(G4double val);
     void BuildTracking();    
 
     void UpdateGeometry();
@@ -53,11 +53,17 @@ class MolPolDetectorConstruction : public G4VUserDetectorConstruction
     G4double              pTr2Pos_X;
     G4double              pTr2Pos_Y;
     G4double              pTr2Pos_Z;
+    G4double              pTr3Pos_X;
+    G4double              pTr3Pos_Y;
+    G4double              pTr3Pos_Z;
     G4Box*                fTrackingSolidUS;
+    G4Box*                fTrackingSolidMD;
     G4Box*                fTrackingSolidDS;
     G4LogicalVolume*      fTrackingLogicalUS;
+    G4LogicalVolume*      fTrackingLogicalMD;
     G4LogicalVolume*      fTrackingLogicalDS;
     G4VPhysicalVolume *   fTrackingPhysVolUS;
+    G4VPhysicalVolume *   fTrackingPhysVolMD;
     G4VPhysicalVolume *   fTrackingPhysVolDS;
     G4double              fLeadJawGapWidth;
     G4double              fLeadJawsHLength;

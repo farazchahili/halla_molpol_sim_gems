@@ -795,7 +795,7 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
    * G4LogicalVolume* HOD3Logical = new G4LogicalVolume(HOD3Solid, MolPol_Air,      "DETLogical", 0, 0, 0);
    * new G4PVPlacement(0, G4ThreeVector(pHOD1Pos_X,pHOD1Pos_Y,pHOD1Pos_Z), HOD1Logical, "Detector_HOD1", MDETLogical, 0,0, fCheckOverlaps);
    * new G4PVPlacement(0, G4ThreeVector(pHOD2Pos_X,pHOD2Pos_Y,pHOD2Pos_Z), HOD2Logical, "Detector_HOD2", MDETLogical, 0,0, fCheckOverlaps);
-   * new G4PVPlacement(0, G4ThreeVector(pHOD3Pos_X,pHOD3Pos_Y,pHOD3Pos_Z), HOD3Logical, "Detector_HOD3", MDETLogical, 0,0, fCheckOverlaps);
+   * new G4PVPlacement(0, G4ThreeVector(pHOD3Pos_X,pHOD3PosY,pHOD3Pos_Z), HOD3Logical, "Detector_HOD3", MDETLogical, 0,0, fCheckOverlaps);
    */
 
   G4double pAPP1HLX   = 2.0 * cm;   G4double pAPP1HLY   = 15. * cm;   G4double pAPP1HLZ   =  0.65 * cm;// NOTE: 0.65 IS THE CORRECT VALUE FOR THE Z HALF LENGTH
@@ -839,14 +839,24 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   // GEM TRACKERS
   G4double pTr1HLX    = 37.00 * cm;  G4double pTr1HLY   = 30.00 * cm;  G4double pTr1HLZ   = 0.001 * mm;//Default length, will be set to 1% radiator
   G4double pTr2HLX    = 37.00 * cm;  G4double pTr2HLY   = 30.00 * cm;  G4double pTr2HLZ   = 0.001 * mm;
-  pTr1Pos_X  = 0.00  * cm;  pTr1Pos_Y = -41.0* cm;  pTr1Pos_Z = 560.0*cm;
-  pTr2Pos_X  = 0.00  * cm;  pTr2Pos_Y = -41.0* cm;  pTr2Pos_Z = 660.0*cm;
+  G4double pTr3HLX    = 37.00 * cm;  G4double pTr3HLY   = 30.00 * cm;  G4double pTr3HLZ   = 0.001 * mm;
+
+  // Set tracker positions
+  pTr1Pos_X  = 0.00  * cm;  pTr1Pos_Y = -41.0* cm;  pTr1Pos_Z = 560.0*cm; // Upstream tracker (unchanged)
+  pTr2Pos_X  = 0.00  * cm;  pTr2Pos_Y = -41.0* cm;  pTr2Pos_Z = 610.0*cm; // Middle tracker
+  pTr3Pos_X  = 0.00  * cm;  pTr3Pos_Y = -41.0* cm;  pTr3Pos_Z = 660.0*cm; // Downstream tracker (was Tr2)
+
   fTrackingSolidUS  = new G4Box( "UpstreamTracking",  pTr1HLX, pTr1HLY, pTr1HLZ );
-  fTrackingSolidDS  = new G4Box( "DownstreamTracking",  pTr2HLX, pTr2HLY, pTr2HLZ );
-  fTrackingLogicalUS = new G4LogicalVolume(fTrackingSolidUS, MolPol_Vacuum, "GEM.Tracking.US", 0,0,0); //FIXME: Set to vacuum as default.
-  fTrackingLogicalDS = new G4LogicalVolume(fTrackingSolidDS, MolPol_Vacuum, "GEM.Tracking.DS", 0,0,0);;
+  fTrackingSolidMD  = new G4Box( "MiddleTracking",    pTr2HLX, pTr2HLY, pTr2HLZ );
+  fTrackingSolidDS  = new G4Box( "DownstreamTracking",pTr3HLX, pTr3HLY, pTr3HLZ );
+
+  fTrackingLogicalUS = new G4LogicalVolume(fTrackingSolidUS, MolPol_Vacuum, "GEM.Tracking.US", 0,0,0); // Upstream
+  fTrackingLogicalMD = new G4LogicalVolume(fTrackingSolidMD, MolPol_Vacuum, "GEM.Tracking.MD", 0,0,0); // Middle
+  fTrackingLogicalDS = new G4LogicalVolume(fTrackingSolidDS, MolPol_Vacuum, "GEM.Tracking.DS", 0,0,0); // Downstream
+
   fTrackingPhysVolUS = new G4PVPlacement(0,G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z), fTrackingLogicalUS, "GEM.Tracking.US", world_log, 0,0, fCheckOverlaps);
-  fTrackingPhysVolDS = new G4PVPlacement(0,G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z), fTrackingLogicalDS, "GEM.Tracking.DS", world_log, 0,0, fCheckOverlaps);
+  fTrackingPhysVolMD = new G4PVPlacement(0,G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z), fTrackingLogicalMD, "GEM.Tracking.MD", world_log, 0,0, fCheckOverlaps);
+  fTrackingPhysVolDS = new G4PVPlacement(0,G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z), fTrackingLogicalDS, "GEM.Tracking.DS", world_log, 0,0, fCheckOverlaps);
 
   SDman->ListTree();
 
@@ -940,58 +950,99 @@ void MolPolDetectorConstruction::ConstructMaterials(){
 
 void MolPolDetectorConstruction::SetTr1Pos_z(G4double val){
   pTr1Pos_Z = val;
+  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+  if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    exit(42);
+    return;
+  }
   if (val < 555.6*cm || val > 671.0*cm) {
     G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Upstream GEM Tracking is not between the detector box and dipole. Quitting." << G4endl; 
     exit(42);
     return;
   }
-  if ( !fTrackingPhysVolUS ) {
-      G4cerr << "Upstream GEM tracking has not yet been constructed." << G4endl;
-      return;
+  if (!fTrackingPhysVolUS) {
+    G4cerr << "Upstream GEM tracking has not yet been constructed." << G4endl;
+    return;
   }
 }
-
 
 void MolPolDetectorConstruction::SetTr2Pos_z(G4double val){
   pTr2Pos_Z = val;
-  if (val<555.6*cm||val>671.0*cm) {
-  	G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Downstream GEM is not between the detector box and dipole. Quitting." << G4endl; 
-      exit(42);
-      return;
+  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+  if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    exit(42);
+    return;
   }
-  if ( !fTrackingPhysVolUS ) {
-      G4cerr << "Downstream GEM tracking has not yet been constructed." << G4endl;
-      return;
+  if (val < 555.6*cm || val > 671.0*cm) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Middle GEM is not between the detector box and dipole. Quitting." << G4endl; 
+    exit(42);
+    return;
+  }
+  if (!fTrackingPhysVolMD) {
+    G4cerr << "Middle GEM tracking has not yet been constructed." << G4endl;
+    return;
   }
 }
 
-
-void MolPolDetectorConstruction::BuildTracking(){
-  if (pTr1Pos_Z > pTr2Pos_Z) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker 1 (det 2, entrence) has to be upstream. Quitting." << G4endl;
+void MolPolDetectorConstruction::SetTr3Pos_z(G4double val){
+  pTr3Pos_Z = val;
+  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+  if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
     exit(42);
-      return;
+    return;
+  }
+  if (val < 555.6*cm || val > 671.0*cm) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Downstream GEM is not between the detector box and dipole. Quitting." << G4endl; 
+    exit(42);
+    return;
+  }
+  if (!fTrackingPhysVolDS) {
+    G4cerr << "Downstream GEM tracking has not yet been constructed." << G4endl;
+    return;
+  }
+}
+void MolPolDetectorConstruction::BuildTracking(){
+  // Ensure trackers are in correct order
+  if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Trackers must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    exit(42);
+    return;
   }
 
   auto MolPol_Aluminum  = G4Material::GetMaterial("MP_Aluminum");
-  fTrackingLogicalUS->UpdateMaterial( G4Material::GetMaterial("MP_Aluminum") );
-  fTrackingLogicalDS->UpdateMaterial( G4Material::GetMaterial("MP_Aluminum") );
-  
+  fTrackingLogicalUS->UpdateMaterial(MolPol_Aluminum);
+  fTrackingLogicalMD->UpdateMaterial(MolPol_Aluminum);
+  fTrackingLogicalDS->UpdateMaterial(MolPol_Aluminum);
+
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
-  MolPolDetector* TRIN   = new MolPolDetector("trin", 200);
-  fTrackingLogicalUS->SetSensitiveDetector( TRIN );
-  SDman->AddNewDetector(TRIN  );
-  MolPolDetector* TROUT  = new MolPolDetector("trout",201);
-  fTrackingLogicalDS->SetSensitiveDetector( TROUT );
-  SDman->AddNewDetector(TROUT );
 
-  G4double radlen = MolPol_Aluminum->GetRadlen() * 0.005;//half-percent radiator
-  G4cout << " >>>>>>>>>>>> 1/2\% of Aluminum Radiation Length Returned: " << radlen << G4endl;
-  fTrackingSolidUS->SetZHalfLength( radlen );
-  fTrackingSolidDS->SetZHalfLength( radlen );
+  // Upstream tracker
+  MolPolDetector* TRIN = new MolPolDetector("trin", 200);
+  fTrackingLogicalUS->SetSensitiveDetector(TRIN);
+  SDman->AddNewDetector(TRIN);
 
-  fTrackingPhysVolUS->SetTranslation( G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z) );
-  fTrackingPhysVolDS->SetTranslation( G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z) );
+  // Middle tracker
+  MolPolDetector* TRMID = new MolPolDetector("trmid", 201);
+  fTrackingLogicalMD->SetSensitiveDetector(TRMID);
+  SDman->AddNewDetector(TRMID);
+
+  // Downstream tracker
+  MolPolDetector* TROUT = new MolPolDetector("trout", 202);
+  fTrackingLogicalDS->SetSensitiveDetector(TROUT);
+  SDman->AddNewDetector(TROUT);
+
+  G4double radlen = MolPol_Aluminum->GetRadlen() * 0.005; // half-percent radiator
+  G4cout << " >>>>>>>>>>>> 1/2% of Aluminum Radiation Length Returned: " << radlen << G4endl;
+  fTrackingSolidUS->SetZHalfLength(radlen);
+  fTrackingSolidMD->SetZHalfLength(radlen);
+  fTrackingSolidDS->SetZHalfLength(radlen);
+
+  fTrackingPhysVolUS->SetTranslation(G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z));
+  fTrackingPhysVolMD->SetTranslation(G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z));
+  fTrackingPhysVolDS->SetTranslation(G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z));
 
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
 
@@ -1065,14 +1116,22 @@ void MolPolDetectorConstruction::DefineGeometryCommands(){
   auto& targetThicknessCmd  = fMessenger->DeclareMethodWithUnit("targetThickness","mm", &MolPolDetectorConstruction::SetTargetThickness, "Set Pb Jaw Width at Dipole Entrance in cm.");
   targetThicknessCmd.SetParameterName("targetThickness", true);
   targetThicknessCmd.SetRange("targetThickness >= 0. && targetThickness < 100");//TODO: SET LIMIT BETWEEN 1 and 100 microns AFTER TESTING
-  // set the z position for the upstream gem
-  auto& track1Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingUS_Pos_z","mm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set z position of entrance tracker in cm.");
+  
+  // set the z position for the upstream GEM
+  auto& track1Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingUS_Pos_z","mm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set z position of upstream tracker in mm.");
   track1Pos_zCmd.SetParameterName("trackingUS_Pos_z", true);
-  track1Pos_zCmd.SetRange("trackingUS_Pos_z >= 5110. && trackingUS_Pos_z < 6710");
-  // set the z position for the downstream gem
-  auto& track2Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingDS_Pos_z","mm", &MolPolDetectorConstruction::SetTr2Pos_z, "Set z position of exit tracker in cm.");
-  track2Pos_zCmd.SetParameterName("trackingDS_Pos_z", true);
-  track2Pos_zCmd.SetRange("trackingDS_Pos_z >= 5110. && trackingDS_Pos_z < 6710");
+  track1Pos_zCmd.SetRange("trackingUS_Pos_z >= 555.6 && trackingUS_Pos_z <= 6710");
+
+  // set the z position for the middle GEM
+  auto& track2Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingMD_Pos_z","mm", &MolPolDetectorConstruction::SetTr2Pos_z, "Set z position of middle tracker in mm.");
+  track2Pos_zCmd.SetParameterName("trackingMD_Pos_z", true);
+  track2Pos_zCmd.SetRange("trackingMD_Pos_z >= 555.6 && trackingMD_Pos_z <= 6710");
+
+  // set the z position for the downstream GEM
+  auto& track3Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingDS_Pos_z","mm", &MolPolDetectorConstruction::SetTr3Pos_z, "Set z position of downstream tracker in mm.");
+  track3Pos_zCmd.SetParameterName("trackingDS_Pos_z", true);
+  track3Pos_zCmd.SetRange("trackingDS_Pos_z >= 555.6 && trackingDS_Pos_z <= 6710");
+
   // build the tracking
   auto& BuildTrackingCmd  = fMessenger->DeclareMethod("buildTracking", &MolPolDetectorConstruction::BuildTracking, "Insert tracking between dipole exit and detector box.");
   
