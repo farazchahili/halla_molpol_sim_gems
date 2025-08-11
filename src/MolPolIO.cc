@@ -83,6 +83,8 @@ void MolPolIO::InitializeTree(){
 
   //record target particle momentum generated to view distributions - can remove later
   fTree->Branch("evTargMom", &fEvTargMom, "ev.targMom/D");
+  fTree->Branch("evCalCoin", &fEvCalCoin, "ev.calCoin/I");
+  fTree->Branch("evHodCoin", &fEvHodCoin, "ev.hodCoin/I");
 
   // DetectorHit
   fTree->Branch("hitN",    &fNDetHit,     "hit.n/I");
@@ -245,6 +247,11 @@ void MolPolIO::AddDetectorHit(MolPolDetectorHit *hit){
   fDetHit_mtrid[n]= hit->fmTrID;
   fDetHit_pid[n]  = hit->fPID;
   fDetHit_gen[n]  = hit->fGen;
+
+  if(hit->fDetID == 9 && hit->fTrID == 1) fEvCalHit1 = true;
+  if(hit->fDetID == 9 && hit->fTrID == 2) fEvCalHit2 = true;
+  if(hit->fDetID == 12 && hit->fTrID == 1) fEvHodHit1 = true;
+  if(hit->fDetID == 13 && hit->fTrID == 2) fEvHodHit1 = true;
 
   fDetHit_X[n]  = hit->f3X.x()/__L_UNIT;
   fDetHit_Y[n]  = hit->f3X.y()/__L_UNIT;
