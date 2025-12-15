@@ -27,6 +27,10 @@
 #include "G4VisAttributes.hh"
 #include "G4RunManager.hh"
 #include "G4GenericMessenger.hh"
+#include "G4NistManager.hh"
+#include <functional>
+#include <string>
+#include <cstdlib>
 
 MolPolDetectorConstruction::MolPolDetectorConstruction():
   mEMFieldSetup(0),
@@ -851,21 +855,120 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
 
   //////////////////////////////////////////////////////////////  (╯°□°）╯︵ ┻━┻
   // GEM TRACKERS
-  G4double pTr1HLX    = 37.00 * cm;  G4double pTr1HLY   = 30.00 * cm;  G4double pTr1HLZ   = 0.001 * mm;//Default length, will be set to 1% radiator
-  G4double pTr2HLX    = 37.00 * cm;  G4double pTr2HLY   = 30.00 * cm;  G4double pTr2HLZ   = 0.001 * mm;
-  G4double pTr3HLX    = 37.00 * cm;  G4double pTr3HLY   = 30.00 * cm;  G4double pTr3HLZ   = 0.001 * mm;
+  
+  const int nGEMLayers = 24;
+  G4double GEMlayerThickness[nGEMLayers] = {
+  0.005*mm,0.02*mm,      //OPENING WINDOW
+  3*mm,0.05*mm,0.005*mm,          //FIRST GAP (DRIFT)
+  3*mm,0.005*mm,0.05*mm,0.005*mm, //GEM0 -- SECOND GAP
+  2*mm,0.005*mm,0.05*mm,0.005*mm, //GEM1 -- THIRD GAP
+  2*mm,0.005*mm,0.05*mm,0.005*mm, //GEM2 -- FOURTH GAP
+  2*mm,0.01*mm,0.05*mm,0.18*mm,   //FIFTH GAP then READOUT BOARD
+  3*mm,0.02*mm,0.005*mm           //SIXTH GAP and CLOSING WINDOW
+  };
 
-  fTrackingSolidUS  = new G4Box( "UpstreamTracking",  pTr1HLX, pTr1HLY, pTr1HLZ );
-  fTrackingSolidMD  = new G4Box( "MiddleTracking",    pTr2HLX, pTr2HLY, pTr2HLZ );
-  fTrackingSolidDS  = new G4Box( "DownstreamTracking",pTr3HLX, pTr3HLY, pTr3HLZ );
+  G4String GEMlayerTypes[nGEMLayers] = {
+  "Al","Mylar",              //OPENING WINDOW
+  "ArCO2","Kapton","Cu",           //FIRST GAP (DRIFT)
+  "ArCO2","Cu","Kapton","Cu",      //GEM0 -- SECOND GAP
+  "ArCO2","Cu","Kapton","Cu",      //GEM1 -- THIRD GAP
+  "ArCO2","Cu","Kapton","Cu",      //GEM2 -- FOURTH GAP
+  "ArCO2","Cu","Kapton","NEMAG10", //FIFTH GAP then READOUT BOARD
+  "ArCO2","Mylar","Kryptonite"     //SIXTH GAP and CLOSING WINDOW
+  };
 
-  fTrackingLogicalUS = new G4LogicalVolume(fTrackingSolidUS, MolPol_Vacuum, "GEM.Tracking.US", 0,0,0); // Upstream
-  fTrackingLogicalMD = new G4LogicalVolume(fTrackingSolidMD, MolPol_Vacuum, "GEM.Tracking.MD", 0,0,0); // Middle
-  fTrackingLogicalDS = new G4LogicalVolume(fTrackingSolidDS, MolPol_Vacuum, "GEM.Tracking.DS", 0,0,0); // Downstream
+  // Total GEM thickness (procedural)
+  G4double totalGEMThickness = 0.0;
+  for (int i = 0; i < nGEMLayers; ++i) totalGEMThickness += GEMlayerThickness[i];
 
-  fTrackingPhysVolUS = new G4PVPlacement(0,G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z), fTrackingLogicalUS, "GEM.Tracking.US", world_log, 0,0, fCheckOverlaps);
-  fTrackingPhysVolMD = new G4PVPlacement(0,G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z), fTrackingLogicalMD, "GEM.Tracking.MD", world_log, 0,0, fCheckOverlaps);
-  fTrackingPhysVolDS = new G4PVPlacement(0,G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z), fTrackingLogicalDS, "GEM.Tracking.DS", world_log, 0,0, fCheckOverlaps);
+  // Keep your existing XY sizing scheme (you said messenger controls these elsewhere; keep that structure)
+  G4double pTr1HLX = 37.00 * cm;  G4double pTr1HLY = 30.00 * cm;
+  G4double pTr2HLX = 37.00 * cm;  G4double pTr2HLY = 30.00 * cm;
+  G4double pTr3HLX = 37.00 * cm;  G4double pTr3HLY = 30.00 * cm;
+
+  // Materials for layers (retrieve by name; created in ConstructMaterials())
+  auto mat_Al        = G4Material::GetMaterial("G4_Al");
+  auto mat_Cu        = G4Material::GetMaterial("G4_Cu");
+  auto mat_Mylar     = G4Material::GetMaterial("Mylar");
+  auto mat_Kapton    = G4Material::GetMaterial("Kapton");
+  auto mat_ArCO2     = G4Material::GetMaterial("ArCO2");
+  auto mat_NEMAG10   = G4Material::GetMaterial("NEMAG10");
+  auto mat_Kryptonite= G4Material::GetMaterial("Kryptonite");
+
+  auto getLayerMat = [&](const G4String& t) -> G4Material* {
+    if (t == "Al")         return mat_Al;
+    if (t == "Cu")         return mat_Cu;
+    if (t == "Mylar")      return mat_Mylar;
+    if (t == "Kapton")     return mat_Kapton;
+    if (t == "ArCO2")      return mat_ArCO2;
+    if (t == "NEMAG10")    return mat_NEMAG10;
+    if (t == "Kryptonite") return mat_Kryptonite;
+    return nullptr;
+  };
+
+  // Basic sanity check: fail early if a required material wasn't found
+  if (!mat_Al || !mat_Cu || !mat_Mylar || !mat_Kapton || !mat_ArCO2 || !mat_NEMAG10 || !mat_Kryptonite) {
+    G4cerr << "ERROR: One or more GEM materials were not found. Check ConstructMaterials() names." << G4endl;
+    G4cerr << "G4_Al=" << mat_Al << " G4_Cu=" << mat_Cu
+           << " Mylar=" << mat_Mylar << " Kapton=" << mat_Kapton
+           << " ArCO2=" << mat_ArCO2 << " NEMAG10=" << mat_NEMAG10
+           << " Kryptonite=" << mat_Kryptonite << G4endl;
+    exit(42);
+  }
+
+  // Helper to build one GEM stack
+  auto buildGEM = [&](const G4String& gemTag,
+                      G4double hlx, G4double hly,
+                      const G4ThreeVector& worldPos,
+                      G4Box*& outSolid,                 // <-- was G4VSolid*&
+                      G4LogicalVolume*& outLogical,
+                      G4VPhysicalVolume*& outPhys) {
+
+    G4String motherSolidName = gemTag + ".MotherSolid";
+    G4String motherLogName   = gemTag + ".MotherLogical";
+    G4String motherPhysName  = gemTag;
+
+    outSolid   = new G4Box(motherSolidName, hlx, hly, totalGEMThickness/2.0);
+    outLogical = new G4LogicalVolume(outSolid, MolPol_Vacuum, motherLogName, 0, 0, 0);
+    outPhys    = new G4PVPlacement(0, worldPos, outLogical, motherPhysName, world_log, 0, 0, fCheckOverlaps);
+
+    // Place layers inside mother (local coordinates of the mother)
+    G4double z_cursor = -totalGEMThickness/2.0;
+    for (int i = 0; i < nGEMLayers; ++i) {
+      G4Material* layMat = getLayerMat(GEMlayerTypes[i]);
+      if (!layMat) {
+        G4cerr << "ERROR: Unknown GEM layer type '" << GEMlayerTypes[i] << "' at index " << i << G4endl;
+        exit(42);
+      }
+
+      const G4double hz = GEMlayerThickness[i] / 2.0;
+      z_cursor += hz;
+
+      G4String layerSolidName = gemTag + ".LayerSolid." + std::to_string(i) + "." + GEMlayerTypes[i];
+      G4String layerLogName   = gemTag + ".LayerLogical." + std::to_string(i) + "." + GEMlayerTypes[i];
+      G4String layerPhysName  = gemTag + ".Layer." + std::to_string(i) + "." + GEMlayerTypes[i];
+
+      G4Box* layerSolid = new G4Box(layerSolidName, hlx, hly, hz);
+      G4LogicalVolume* layerLogical = new G4LogicalVolume(layerSolid, layMat, layerLogName, 0, 0, 0);
+
+      new G4PVPlacement(0, G4ThreeVector(0, 0, z_cursor), layerLogical, layerPhysName, outLogical, 0, 0, fCheckOverlaps);
+
+      z_cursor += hz;
+    }
+  };
+
+  // Build all three GEMs
+  buildGEM("GEM.Tracking.US", pTr1HLX, pTr1HLY,
+           G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z),
+           fTrackingSolidUS, fTrackingLogicalUS, fTrackingPhysVolUS);
+
+  buildGEM("GEM.Tracking.MD", pTr2HLX, pTr2HLY,
+           G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z),
+           fTrackingSolidMD, fTrackingLogicalMD, fTrackingPhysVolMD);
+
+  buildGEM("GEM.Tracking.DS", pTr3HLX, pTr3HLY,
+           G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z),
+           fTrackingSolidDS, fTrackingLogicalDS, fTrackingPhysVolDS);
 
   SDman->ListTree();
 
@@ -921,7 +1024,10 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
 
 void MolPolDetectorConstruction::ConstructMaterials(){
   G4double a, z, density, pressure, temperature;
-  G4int nelements, natoms;
+  G4int nelements, natoms, nel;
+  G4String name, symbol;
+
+  G4NistManager* nist = G4NistManager::Instance();
 
   G4Element* N  = new G4Element("Nitrogen"  , "N" , z=7 , a=14.01*g/mole);
   G4Element* O  = new G4Element("Oxygen"    , "O" , z=8 , a=16.00*g/mole);
@@ -1011,20 +1117,109 @@ void MolPolDetectorConstruction::ConstructMaterials(){
   Air->AddElement(N, 79.0*perCent);
   Air->AddElement(O, 21.0*perCent);
 
+  // GEM materials
+
+  G4double a_H = 1.01*g/mole;
+  G4Element* elH  = new G4Element(name="el_Hydrogen",symbol="H" , 1., a_H);
+
+  G4double a_C = 12.011*g/mole;
+  G4Element* elC = new G4Element(name="el_Carbon",symbol="C", 6., a_C);
+
+  G4double a_O = 15.994*g/mole;
+  G4Element* elO = new G4Element(name="el_Oxygen",symbol="O", 8., a_O);
+
+  G4double a_Si = 28.085*g/mole;
+  G4Element* elSi  = new G4Element(name="el_Silicon",symbol="Si" , 14., a_Si);
+
+  G4double a_Ar = 39.948*g/mole;
+  G4Element* elAr = new G4Element(name="el_Argon",symbol="Ar", 18., a_Ar);
+
+  // Materials
+  G4Material* G4_Air = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material* G4_H = nist->FindOrBuildMaterial("G4_H");
+  G4Material* G4_C = nist->FindOrBuildMaterial("G4_C");
+  G4Material* G4_N = nist->FindOrBuildMaterial("G4_N");
+  G4Material* G4_O = nist->FindOrBuildMaterial("G4_O");
+  G4Material* G4_Cl = nist->FindOrBuildMaterial("G4_Cl");
+  G4Material* G4_Al = nist->FindOrBuildMaterial("G4_Al");
+  G4Material* G4_Cu = nist->FindOrBuildMaterial("G4_Cu");
+
+  // Argon
+  G4double density_Ar = 1.7823*mg/cm3;
+  G4Material* Argon = new G4Material(name = "Argon", density_Ar, nel=1);
+  Argon->AddElement(elAr, natoms=1);
+
+  // CO2
+  G4double density_CO2 = 1.977*mg/cm3;
+  G4Material* CO2 = new G4Material(name = "CO2", density_CO2, nel=2);
+  CO2->AddElement(elC, natoms=1);
+  CO2->AddElement(elO, natoms=2);
+
+  // ArCO2
+  G4double density_ArCO2 = 10*(0.68*density_Ar + 0.32*density_CO2);
+  G4Material* GEM_ArCO2 = new G4Material(name = "ArCO2", density_ArCO2, nel=2);
+  GEM_ArCO2->AddMaterial(Argon, 0.68*density_Ar/density_ArCO2);
+  GEM_ArCO2->AddMaterial(CO2, 0.32*density_CO2/density_ArCO2);
+
+  // Mylar
+  G4double density_mylar = 1.397*g/cm3;
+  G4Material * GEM_mylar = new G4Material(name = "Mylar", density_mylar, nel=3);
+  GEM_mylar->AddMaterial(G4_H, 4.2*perCent);
+  GEM_mylar->AddMaterial(G4_C, 62.5*perCent);
+  GEM_mylar->AddMaterial(G4_O, 33.3*perCent);
+
+  // Kapton
+  G4double density_Kapton = 1.420*g/cm3;
+  G4Material * GEM_Kapton = new G4Material(name = "Kapton", density_Kapton, nel=4);
+  GEM_Kapton->AddMaterial(G4_H, 2.6362*perCent);
+  GEM_Kapton->AddMaterial(G4_C, 69.1133*perCent);
+  GEM_Kapton->AddMaterial(G4_N, 7.3727*perCent);
+  GEM_Kapton->AddMaterial(G4_O, 20.9235*perCent);
+
+  // NOMEX pure
+  G4double density_NOMEX_pure = 1.38*g/cm3;
+  G4Material * GEM_NOMEX_pure = new G4Material(name = "GEM_NOMEX_pure", density_NOMEX_pure, nel=5);
+  GEM_NOMEX_pure->AddMaterial(G4_H, 4*perCent);
+  GEM_NOMEX_pure->AddMaterial(G4_C, 54*perCent);
+  GEM_NOMEX_pure->AddMaterial(G4_N, 9*perCent);
+  GEM_NOMEX_pure->AddMaterial(G4_O, 10*perCent);
+  GEM_NOMEX_pure->AddMaterial(G4_Cl, 23*perCent);
+
+  // NOMEX
+  G4double density_GEM_NOMEX = 1.397*g/cm3;
+  G4Material * GEM_NOMEX = new G4Material(name = "GEM_NOMEX", density_GEM_NOMEX, nel=2);
+  GEM_NOMEX->AddMaterial(GEM_NOMEX_pure, 45*perCent);
+  GEM_NOMEX->AddMaterial(G4_Air, 55*perCent);
+
+  // NEMAG10
+  G4double density_GEM_NEMAG10 = 1.397*g/cm3;
+  G4Material * GEM_NEMAG10 = new G4Material(name = "NEMAG10", density_GEM_NEMAG10, nel=4);
+  GEM_NEMAG10->AddElement(elSi, natoms=1);
+  GEM_NEMAG10->AddElement(elO, natoms=2);
+  GEM_NEMAG10->AddElement(elC, natoms=3);
+  GEM_NEMAG10->AddElement(elH, natoms=3);
+
+  // Kryptonite
+  G4double density_Kryptonite = 0.000000000000001*mg/cm3;
+  G4Material* Kryptonite = new G4Material(name = "Kryptonite", density_Kryptonite, nel=1);
+  Kryptonite->AddElement(elH, natoms=1);
+
   G4cout << G4endl << "The materials defined are : " << G4endl << G4endl;
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 }
 
 void MolPolDetectorConstruction::SetTr1Pos_z(G4double val){
   pTr1Pos_Z = val;
-  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+
   if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
     exit(42);
     return;
   }
   if (val < 555.6*cm || val > 671.0*cm) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Upstream GEM Tracking is not between the detector box and dipole. Quitting." << G4endl; 
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Specified location for Upstream GEM Tracking is not between the detector box and dipole. Quitting." << G4endl;
     exit(42);
     return;
   }
@@ -1032,18 +1227,24 @@ void MolPolDetectorConstruction::SetTr1Pos_z(G4double val){
     G4cerr << "Upstream GEM tracking has not yet been constructed." << G4endl;
     return;
   }
+
+  // Move the whole GEM mother volume
+  fTrackingPhysVolUS->SetTranslation(G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z));
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
 
 void MolPolDetectorConstruction::SetTr2Pos_z(G4double val){
   pTr2Pos_Z = val;
-  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+
   if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
     exit(42);
     return;
   }
   if (val < 555.6*cm || val > 671.0*cm) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Middle GEM is not between the detector box and dipole. Quitting." << G4endl; 
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Specified location for Middle GEM is not between the detector box and dipole. Quitting." << G4endl;
     exit(42);
     return;
   }
@@ -1051,18 +1252,23 @@ void MolPolDetectorConstruction::SetTr2Pos_z(G4double val){
     G4cerr << "Middle GEM tracking has not yet been constructed." << G4endl;
     return;
   }
+
+  fTrackingPhysVolMD->SetTranslation(G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z));
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
 
 void MolPolDetectorConstruction::SetTr3Pos_z(G4double val){
   pTr3Pos_Z = val;
-  // Ensure all three trackers are in order: pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z
+
   if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Tracker positions must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
     exit(42);
     return;
   }
   if (val < 555.6*cm || val > 671.0*cm) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Specified location for Downstream GEM is not between the detector box and dipole. Quitting." << G4endl; 
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Specified location for Downstream GEM is not between the detector box and dipole. Quitting." << G4endl;
     exit(42);
     return;
   }
@@ -1070,50 +1276,80 @@ void MolPolDetectorConstruction::SetTr3Pos_z(G4double val){
     G4cerr << "Downstream GEM tracking has not yet been constructed." << G4endl;
     return;
   }
+
+  fTrackingPhysVolDS->SetTranslation(G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z));
+  G4RunManager::GetRunManager()->GeometryHasBeenModified();
 }
+
+
 void MolPolDetectorConstruction::BuildTracking(){
   // Ensure trackers are in correct order
   if (pTr1Pos_Z >= pTr2Pos_Z || pTr2Pos_Z >= pTr3Pos_Z) {
-    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__ << ": Trackers must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": Trackers must satisfy pTr1Pos_Z < pTr2Pos_Z < pTr3Pos_Z. Quitting." << G4endl;
     exit(42);
     return;
   }
 
-  auto MolPol_Aluminum  = G4Material::GetMaterial("MP_Aluminum");
-  fTrackingLogicalUS->UpdateMaterial(MolPol_Aluminum);
-  fTrackingLogicalMD->UpdateMaterial(MolPol_Aluminum);
-  fTrackingLogicalDS->UpdateMaterial(MolPol_Aluminum);
+  if (!fTrackingPhysVolUS || !fTrackingPhysVolMD || !fTrackingPhysVolDS ||
+      !fTrackingLogicalUS || !fTrackingLogicalMD || !fTrackingLogicalDS) {
+    G4cerr << "Error " << __PRETTY_FUNCTION__ << " line " << __LINE__
+           << ": GEM tracking volumes have not yet been constructed." << G4endl;
+    return;
+  }
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
-  // Upstream tracker
-  MolPolDetector* TRIN = new MolPolDetector("trin", 200);
-  fTrackingLogicalUS->SetSensitiveDetector(TRIN);
-  SDman->AddNewDetector(TRIN);
+  // Create-or-reuse SDs (prevents duplicates if buildTracking is called multiple times)
+  auto ensureSD = [&](const G4String& name, int id) -> MolPolDetector* {
+    auto* existing = SDman->FindSensitiveDetector(name, false);
+    if (existing) return static_cast<MolPolDetector*>(existing);
+    auto* sd = new MolPolDetector(name, id);
+    SDman->AddNewDetector(sd);
+    return sd;
+  };
 
-  // Middle tracker
-  MolPolDetector* TRMID = new MolPolDetector("trmid", 201);
-  fTrackingLogicalMD->SetSensitiveDetector(TRMID);
-  SDman->AddNewDetector(TRMID);
+  MolPolDetector* TRIN  = ensureSD("trin",  200);
+  MolPolDetector* TRMID = ensureSD("trmid", 201);
+  MolPolDetector* TROUT = ensureSD("trout", 202);
 
-  // Downstream tracker
-  MolPolDetector* TROUT = new MolPolDetector("trout", 202);
-  fTrackingLogicalDS->SetSensitiveDetector(TROUT);
-  SDman->AddNewDetector(TROUT);
+  // Recursively attach SD only to ArCO2 layers under each GEM mother
+  std::function<void(G4LogicalVolume*, G4VSensitiveDetector*)> AttachSDRecursive;
+  AttachSDRecursive = [&](G4LogicalVolume* lv, G4VSensitiveDetector* sd){
+    if (!lv) return;
 
-  G4double radlen = MolPol_Aluminum->GetRadlen() * 0.005; // half-percent radiator
-  G4cout << " >>>>>>>>>>>> 1/2% of Aluminum Radiation Length Returned: " << radlen << G4endl;
-  fTrackingSolidUS->SetZHalfLength(radlen);
-  fTrackingSolidMD->SetZHalfLength(radlen);
-  fTrackingSolidDS->SetZHalfLength(radlen);
+    // Only ArCO2 layers are sensitive; clear SD on others (important if BuildTracking is called multiple times)
+    auto* mat = lv->GetMaterial();
+    const G4String matName = mat ? mat->GetName() : "";
+    if (matName == "ArCO2") {
+      lv->SetSensitiveDetector(sd);
+    } else {
+      lv->SetSensitiveDetector(nullptr);
+    }
 
+    const auto nD = lv->GetNoDaughters();
+    for (size_t i = 0; i < nD; ++i) {
+      auto* pvD = lv->GetDaughter(i);
+      if (!pvD) continue;
+      auto* lvD = pvD->GetLogicalVolume();
+      if (!lvD) continue;
+      AttachSDRecursive(lvD, sd);
+    }
+  };
+
+  AttachSDRecursive(fTrackingLogicalUS, TRIN);
+  AttachSDRecursive(fTrackingLogicalMD, TRMID);
+  AttachSDRecursive(fTrackingLogicalDS, TROUT);
+
+
+  // Apply messenger-controlled translations to the GEM mothers
   fTrackingPhysVolUS->SetTranslation(G4ThreeVector(pTr1Pos_X, pTr1Pos_Y, pTr1Pos_Z));
   fTrackingPhysVolMD->SetTranslation(G4ThreeVector(pTr2Pos_X, pTr2Pos_Y, pTr2Pos_Z));
   fTrackingPhysVolDS->SetTranslation(G4ThreeVector(pTr3Pos_X, pTr3Pos_Y, pTr3Pos_Z));
 
   G4RunManager::GetRunManager()->GeometryHasBeenModified();
-
   SDman->ListTree();
+
 }
 
 void MolPolDetectorConstruction::SetTargetThickness(G4double val){
@@ -1228,19 +1464,19 @@ void MolPolDetectorConstruction::DefineGeometryCommands(){
   GEM3ZCmd.SetRange("GEM3Z >= 555.6 && GEM3Z <= 671.0");
 
   // set the z position for the upstream GEM
-  auto& track1Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingUS_Pos_z","mm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set z position of upstream tracker in mm.");
+  auto& track1Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingUS_Pos_z","cm", &MolPolDetectorConstruction::SetTr1Pos_z, "Set z position of upstream tracker in mm.");
   track1Pos_zCmd.SetParameterName("trackingUS_Pos_z", true);
-  track1Pos_zCmd.SetRange("trackingUS_Pos_z >= 555.6 && trackingUS_Pos_z <= 6710");
+  track1Pos_zCmd.SetRange("trackingUS_Pos_z >= 555.6 && trackingUS_Pos_z <= 671.0");
 
   // set the z position for the middle GEM
-  auto& track2Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingMD_Pos_z","mm", &MolPolDetectorConstruction::SetTr2Pos_z, "Set z position of middle tracker in mm.");
+  auto& track2Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingMD_Pos_z","cm", &MolPolDetectorConstruction::SetTr2Pos_z, "Set z position of middle tracker in mm.");
   track2Pos_zCmd.SetParameterName("trackingMD_Pos_z", true);
-  track2Pos_zCmd.SetRange("trackingMD_Pos_z >= 555.6 && trackingMD_Pos_z <= 6710");
+  track2Pos_zCmd.SetRange("trackingMD_Pos_z >= 555.6 && trackingMD_Pos_z <= 671.0");
 
   // set the z position for the downstream GEM
-  auto& track3Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingDS_Pos_z","mm", &MolPolDetectorConstruction::SetTr3Pos_z, "Set z position of downstream tracker in mm.");
+  auto& track3Pos_zCmd  = fMessenger->DeclareMethodWithUnit("trackingDS_Pos_z","cm", &MolPolDetectorConstruction::SetTr3Pos_z, "Set z position of downstream tracker in mm.");
   track3Pos_zCmd.SetParameterName("trackingDS_Pos_z", true);
-  track3Pos_zCmd.SetRange("trackingDS_Pos_z >= 555.6 && trackingDS_Pos_z <= 6710");
+  track3Pos_zCmd.SetRange("trackingDS_Pos_z >= 555.6 && trackingDS_Pos_z <= 671.0");
 
   // build the tracking
   auto& BuildTrackingCmd  = fMessenger->DeclareMethod("buildTracking", &MolPolDetectorConstruction::BuildTracking, "Insert tracking between dipole exit and detector box.");
