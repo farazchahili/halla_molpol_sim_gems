@@ -4,6 +4,8 @@
 
 #GENERAL: GENERATOR TYPES: moller, LUND, beam
 
+/process/inactivate msc
+
 
 /MolPol/gen               moller
 /MolPol/filename          sample.root
