@@ -882,9 +882,9 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   for (int i = 0; i < nGEMLayers; ++i) totalGEMThickness += GEMlayerThickness[i];
 
   // Keep your existing XY sizing scheme (you said messenger controls these elsewhere; keep that structure)
-  G4double pTr1HLX = 37.00 * cm;  G4double pTr1HLY = 30.00 * cm;
-  G4double pTr2HLX = 37.00 * cm;  G4double pTr2HLY = 30.00 * cm;
-  G4double pTr3HLX = 37.00 * cm;  G4double pTr3HLY = 30.00 * cm;
+  G4double pTr1HLX = 10.44 * cm;  G4double pTr1HLY = 8.34 * cm;
+  G4double pTr2HLX = 10.44 * cm;  G4double pTr2HLY = 9.285 * cm;
+  G4double pTr3HLX = 10.44 * cm;  G4double pTr3HLY = 10.44 * cm;
 
   // Materials for layers (retrieve by name; created in ConstructMaterials())
   auto mat_Al        = G4Material::GetMaterial("G4_Al");
