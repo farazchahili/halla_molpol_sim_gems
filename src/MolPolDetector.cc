@@ -66,6 +66,8 @@ G4bool MolPolDetector::ProcessHits( G4Step *step, G4TouchableHistory *){
 	thishit->fE = track->GetTotalEnergy();
 	thishit->fM = track->GetDefinition()->GetPDGMass();
 
+    thishit->fEdep = step->GetTotalEnergyDeposit();
+
 	thishit->fTrID  = track->GetTrackID();
 	thishit->fmTrID = track->GetParentID();
 	thishit->fPID   = track->GetDefinition()->GetPDGEncoding();

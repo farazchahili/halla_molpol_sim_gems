@@ -31,6 +31,8 @@ class MolPolDetectorHit : public G4VHit {
 	G4ThreeVector f3P;
 	// Total momentum, energy, mass
 	G4double fP, fE, fM;
+	// Energy deposit
+    G4double fEdep; 
 	// Origin
 	G4ThreeVector f3V;
 	G4ThreeVector f3D;

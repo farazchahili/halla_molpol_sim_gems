@@ -126,6 +126,8 @@ private:
   G4double fDetHit_E[__IO_MAXHIT];
   G4double fDetHit_M[__IO_MAXHIT];
 
+  G4double fDetHit_Edep[__IO_MAXHIT];
+
   G4double fDetHit_Vx[__IO_MAXHIT];
   G4double fDetHit_Vy[__IO_MAXHIT];
   G4double fDetHit_Vz[__IO_MAXHIT];

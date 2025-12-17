@@ -15,6 +15,7 @@ MolPolDetectorHit::MolPolDetectorHit(G4int det, G4int copy){
     fP  = -1.0;
     fE  = -1.0;
     fM  = -1.0;
+    fEdep = 0.0; 
 
     fTrID  = -1;
     fPID   = (G4int) 1e9;
@@ -40,6 +41,7 @@ MolPolDetectorHit::MolPolDetectorHit(const MolPolDetectorHit &right) : G4VHit(){
     fP      = right.fP;
     fE      = right.fE;
     fM      = right.fM;
+    fEdep   = right.fEdep;
 
     fTrID   = right.fTrID;
     fPID    = right.fPID;

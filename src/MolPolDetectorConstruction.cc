@@ -43,13 +43,13 @@ MolPolDetectorConstruction::MolPolDetectorConstruction():
   fTargetBeamlinePx( 0.0*mm),
   fTargetBeamlinePy( 0.0*mm),
   pTr1Pos_X(0.0*cm),
-  pTr1Pos_Y(-41.0*cm),
+  pTr1Pos_Y(-23.34*cm),
   pTr1Pos_Z(560.0*cm),
   pTr2Pos_X(0.0*cm),
-  pTr2Pos_Y(-41.0*cm),
+  pTr2Pos_Y(-25.685*cm),
   pTr2Pos_Z(610.0*cm),
   pTr3Pos_X(0.0*cm),
-  pTr3Pos_Y(-41.0*cm),
+  pTr3Pos_Y(-26.17*cm),
   pTr3Pos_Z(660.0*cm),
   fTargetBeamlinePz(67.4*mm)   //Default target-center position on beamline.
 {
@@ -930,6 +930,13 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
 
     outSolid   = new G4Box(motherSolidName, hlx, hly, totalGEMThickness/2.0);
     outLogical = new G4LogicalVolume(outSolid, MolPol_Vacuum, motherLogName, 0, 0, 0);
+
+    // Dark gray fill with white edges
+    G4VisAttributes* GEMVisAtt = new G4VisAttributes(G4Colour(255./255., 255./255., 255./255., 0.75));
+    GEMVisAtt->SetForceWireframe(true);
+    GEMVisAtt->SetLineWidth(2.0);  // Make edges thicker/more visible
+    outLogical->SetVisAttributes(GEMVisAtt);
+
     outPhys    = new G4PVPlacement(0, worldPos, outLogical, motherPhysName, world_log, 0, 0, fCheckOverlaps);
 
     // Place layers inside mother (local coordinates of the mother)

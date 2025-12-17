@@ -120,6 +120,8 @@ void MolPolIO::InitializeTree(){
   fTree->Branch("hitE",    &fDetHit_E,   "hit.e[hit.n]/D");
   fTree->Branch("hitM",    &fDetHit_M,   "hit.m[hit.n]/D");
 
+  fTree->Branch("hitEdep", &fDetHit_Edep,"hit.edep[hit.n]/D"); 
+
 
   return;
 }
@@ -276,6 +278,8 @@ void MolPolIO::AddDetectorHit(MolPolDetectorHit *hit){
   fDetHit_P[n]  = hit->fP/__E_UNIT;
   fDetHit_E[n]  = hit->fE/__E_UNIT;
   fDetHit_M[n]  = hit->fM/__E_UNIT;
+
+  fDetHit_Edep[n] = hit->fEdep/__E_UNIT;
 
   fNDetHit++;
 
