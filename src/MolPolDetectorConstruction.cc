@@ -43,14 +43,14 @@ MolPolDetectorConstruction::MolPolDetectorConstruction():
   fTargetBeamlinePx( 0.0*mm),
   fTargetBeamlinePy( 0.0*mm),
   pTr1Pos_X(0.0*cm),
-  pTr1Pos_Y(-23.34*cm),
+  pTr1Pos_Y(-33.32*cm),
   pTr1Pos_Z(560.0*cm),
   pTr2Pos_X(0.0*cm),
-  pTr2Pos_Y(-25.685*cm),
-  pTr2Pos_Z(610.0*cm),
+  pTr2Pos_Y(-38.1206*cm),
+  pTr2Pos_Z(608.6156*cm),
   pTr3Pos_X(0.0*cm),
-  pTr3Pos_Y(-26.17*cm),
-  pTr3Pos_Z(660.0*cm),
+  pTr3Pos_Y(-41.575*cm),
+  pTr3Pos_Z(656.7486*cm),
   fTargetBeamlinePz(67.4*mm)   //Default target-center position on beamline.
 {
   DefineGeometryCommands();
@@ -882,9 +882,9 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   for (int i = 0; i < nGEMLayers; ++i) totalGEMThickness += GEMlayerThickness[i];
 
   // Keep your existing XY sizing scheme (you said messenger controls these elsewhere; keep that structure)
-  G4double pTr1HLX = 10.44 * cm;  G4double pTr1HLY = 8.34 * cm;
-  G4double pTr2HLX = 10.44 * cm;  G4double pTr2HLY = 9.285 * cm;
-  G4double pTr3HLX = 10.44 * cm;  G4double pTr3HLY = 10.44 * cm;
+  G4double pTr1HLX = 11.3792 * cm;  G4double pTr1HLY = 20.32 * cm;
+  G4double pTr2HLX = 11.3792 * cm;  G4double pTr2HLY = 20.32 * cm;
+  G4double pTr3HLX = 11.3792 * cm;  G4double pTr3HLY = 20.32 * cm;
 
   // Materials for layers (retrieve by name; created in ConstructMaterials())
   auto mat_Al        = G4Material::GetMaterial("G4_Al");
