@@ -43,13 +43,13 @@ MolPolDetectorConstruction::MolPolDetectorConstruction():
   fTargetBeamlinePx( 0.0*mm),
   fTargetBeamlinePy( 0.0*mm),
   pTr1Pos_X(0.0*cm),
-  pTr1Pos_Y(-33.32*cm),
+  pTr1Pos_Y(-31.82*cm),
   pTr1Pos_Z(560.0*cm),
   pTr2Pos_X(0.0*cm),
-  pTr2Pos_Y(-38.1206*cm),
+  pTr2Pos_Y(-36.6206*cm),
   pTr2Pos_Z(608.6156*cm),
   pTr3Pos_X(0.0*cm),
-  pTr3Pos_Y(-41.575*cm),
+  pTr3Pos_Y(-40.075*cm),
   pTr3Pos_Z(656.7486*cm),
   fTargetBeamlinePz(67.4*mm)   //Default target-center position on beamline.
 {
