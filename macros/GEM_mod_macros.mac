@@ -45,14 +45,12 @@
 /MolPol/Geo/jawWidth            2.0  cm
 /MolPol/Geo/targetPosition   67.4  mm
 /MolPol/Geo/targetThickness   0.01  mm
-/MolPol/Geo/trackingUS_Pos_z  560.0  cm
-/MolPol/Geo/trackingDS_Pos_z  660.0  cm
 /MolPol/Geo/buildTracking     
 
 #GEOMETRY MODIFICATIONS FOR GEM TRACKERS
-/MolPol/Geo/GEM1Z 560.0 cm
-/MolPol/Geo/GEM2Z 610.0 cm
-/MolPol/Geo/GEM3Z 660.0 cm
+/MolPol/Geo/GEM1Z 561.2514 cm
+/MolPol/Geo/GEM2Z 609.867 cm
+/MolPol/Geo/GEM3Z 658.0 cm
 
 #FIELD INFORMATION
 /field/MagSourceMode      1

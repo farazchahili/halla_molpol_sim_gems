@@ -982,15 +982,32 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
 
   //// MASK CONSTRUCTION
   // Some parameters
+  /*
   G4double pWinDown = 3.271*cm; //Window downset
   G4double pWinTopAngle = 6.3*deg;
   G4double pWinBotAngle = 7.5*deg;
   G4double pWinZRotGlob = 10.0*deg;
+
   // Define rotation for window cutout.
   G4RotationMatrix* pRotWin = new G4RotationMatrix();
       pRotWin->rotateY(90.*deg);
       pRotWin->rotateZ(90.*deg);
       pRotWin->rotateY(pWinZRotGlob); //Rotate in Y again to get window angle in X/Y plane in Global Coordinates.
+  
+*/
+  
+   // no rotation
+  G4double pWinDown = 3.271*cm; //Window downset
+  G4double pWinTopAngle = 6.3*deg;
+  G4double pWinBotAngle = 7.5*deg;
+  G4double pWinZRotGlob = 0.0*deg;
+  G4RotationMatrix* pRotWin = new G4RotationMatrix();
+      pRotWin->rotateY(90.*deg);
+      pRotWin->rotateZ(90.*deg);
+      pRotWin->rotateY(pWinZRotGlob); //Rotate in Y again to get window angle in X/Y plane in Global Coordinates.
+
+      
+
   // Actual solids
   G4double  pPT1MASKHLX  = 12.751/2.0*cm; G4double pPT1MASKHLY = 17.046/2.0*cm; G4double pPT1MASKHLZ = 3.810/2.0*cm; //portion inserted into box
   G4double  pPT2MASKHLX  = 19.304/2.0*cm; G4double pPT2MASKHLY = 20.196/2.0*cm; G4double pPT2MASKHLZ = 2.540/2.0*cm; //portion outside the box
