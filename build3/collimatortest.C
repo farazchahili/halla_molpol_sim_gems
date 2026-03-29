@@ -328,7 +328,7 @@ void collimatortest::Loop()
       hXY12[d]->Draw("COLZ");
    }
    c0->Update();
-   c0->SaveAs("canvas0_hitX_vs_hitY_all_detectors.pdf");
+   //c0->SaveAs("canvas0_hitX_vs_hitY_all_detectors.pdf");
    c0->SaveAs("canvas0_hitX_vs_hitY_all_detectors.png", "PNG");
 
    // Canvas 4 (NEW): evPhcom vs evThcom for all 15 detectors in 5x3 grid
@@ -365,7 +365,7 @@ void collimatortest::Loop()
       hPhcomThcom12[d]->Draw("COLZ");
    }
    c4->Update();
-   c4->SaveAs("canvas4_evPhcom_vs_evThcom_all_detectors.pdf");
+   //c4->SaveAs("canvas4_evPhcom_vs_evThcom_all_detectors.pdf");
    c4->SaveAs("canvas4_evPhcom_vs_evThcom_all_detectors.png", "PNG");
 
    // Canvas 5 (NEW): evPh[0] vs evTh[0] for all 15 detectors in 5x3 grid
@@ -402,7 +402,7 @@ void collimatortest::Loop()
       hPh0Th012[d]->Draw("COLZ");
    }
    c5->Update();
-   c5->SaveAs("canvas5_evPh0_vs_evTh0_all_detectors.pdf");
+   //c5->SaveAs("canvas5_evPh0_vs_evTh0_all_detectors.pdf");
    c5->SaveAs("canvas5_evPh0_vs_evTh0_all_detectors.png", "PNG");
 
    // Canvas 6 (NEW): hitE (Hit Energy) for all 15 detectors in 5x3 grid
@@ -440,7 +440,7 @@ void collimatortest::Loop()
       hE12[d]->Draw();
    }
    c6->Update();
-   c6->SaveAs("canvas6_hitE_all_detectors.pdf");
+   //c6->SaveAs("canvas6_hitE_all_detectors.pdf");
    c6->SaveAs("canvas6_hitE_all_detectors.png", "PNG");
 
    // COMMENTED OUT - Focus on 15-detector plots
