@@ -4,7 +4,7 @@
 
 #GENERAL: GENERATOR TYPES: moller, LUND, beam
 
-/process/inactivate msc
+# /process/inactivate msc
 
 
 /MolPol/gen               moller
@@ -63,12 +63,12 @@
 
 #FIELD INFORMATION
 /field/MagSourceMode      1
-/field/setQ1T            -0.5
-/field/setQ2T            -0.5
-/field/setQ3T             0.35
-/field/setQ4T             0.5
-/field/setQ5T             1.2
-/field/setQ6T             0.0
+/field/setQ1T            -0.55
+/field/setQ2T            -0.55
+/field/setQ3T             0.4
+/field/setQ4T             0.55
+/field/setQ5T             1.275
+/field/setQ6T             4.0
 
 #MAGNET OFFSET INFORMATION
 #/field/setQ1YOffset       0.530   mm
