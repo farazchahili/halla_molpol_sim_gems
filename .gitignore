@@ -13,10 +13,18 @@
 *.log
 *.dot
 
+#Allow PDFs and PNGs in plots directory
+!build3/plots/
+!build3/plots/**/*.pdf
+!build3/plots/**/*.png
+
 #ignore build and map directory
 build*
-bldXcode
-map_directory
+!build3
+build3/*
+!build3/plots/
+!build3/collimatortest.C
+!build3/collimatortest.h
 
 #ignore log and rootfiles directory
 log
