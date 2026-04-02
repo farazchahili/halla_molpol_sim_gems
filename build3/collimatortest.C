@@ -166,6 +166,7 @@ void collimatortest::Loop()
     // For dynamic axis limits - flux plane detectors (20 detectors)
     std::vector<float> minXFlux(20, 1e9), maxXFlux(20, -1e9), minYFlux(20, 1e9), maxYFlux(20, -1e9);
     std::vector<float> minPhcomFlux(20, 1e9), maxPhcomFlux(20, -1e9), minThcomFlux(20, 1e9), maxThcomFlux(20, -1e9);
+    std::vector<float> minPh0Flux(20, 1e9), maxPh0Flux(20, -1e9), minTh0Flux(20, 1e9), maxTh0Flux(20, -1e9);
 
     // First pass: find min/max for each variable per detector
     Long64_t nentries = fChain->GetEntriesFast();
@@ -252,6 +253,12 @@ void collimatortest::Loop()
                 maxPhcomFlux[d] = std::max(maxPhcomFlux[d], float(evPhcom));
                 minThcomFlux[d] = std::min(minThcomFlux[d], float(evThcom));
                 maxThcomFlux[d] = std::max(maxThcomFlux[d], float(evThcom));
+                float ph0deg = evPh[0] * 180.0 / TMath::Pi();
+                float th0deg = evTh[0] * 180.0 / TMath::Pi();
+                minPh0Flux[d] = std::min(minPh0Flux[d], ph0deg);
+                maxPh0Flux[d] = std::max(maxPh0Flux[d], ph0deg);
+                minTh0Flux[d] = std::min(minTh0Flux[d], th0deg);
+                maxTh0Flux[d] = std::max(maxTh0Flux[d], th0deg);
             }
         }
     }
@@ -277,6 +284,7 @@ void collimatortest::Loop()
     // Create histograms with dynamic ranges - flux plane detectors (20 detectors)
     TH2F* hXYFlux[20];
     TH2F* hPhcomThcomFlux[20];
+    TH2F* hPh0Th0Flux[20];
     
     for (int d = 0; d < 4; ++d) {
         auto xlim = margin(minX[d], maxX[d]);
@@ -347,6 +355,10 @@ void collimatortest::Loop()
         auto phcomlim = margin(minPhcomFlux[d], maxPhcomFlux[d]);
         auto thcomlim = margin(minThcomFlux[d], maxThcomFlux[d]);
         hPhcomThcomFlux[d] = new TH2F(Form("hPhcomThcomFlux_%d", detsFlux[d]), hPhcomThcomFluxTitles[d], 500, phcomlim.first, phcomlim.second, 500, thcomlim.first, thcomlim.second);
+
+        auto ph0lim = margin(minPh0Flux[d], maxPh0Flux[d]);
+        auto th0lim = margin(minTh0Flux[d], maxTh0Flux[d]);
+        hPh0Th0Flux[d] = new TH2F(Form("hPh0Th0Flux_%d", detsFlux[d]), Form("evPh[0] vs evTh[0] - Detector %d;evPh[0] [deg];evTh[0] [deg]", detsFlux[d]), 500, ph0lim.first, ph0lim.second, 500, th0lim.first, th0lim.second);
     }
 
     // Second pass: fill histograms
@@ -402,6 +414,9 @@ void collimatortest::Loop()
         for (int d = 0; d < 20; ++d) {
             if (hasHitFlux[d]) {
                 hPhcomThcomFlux[d]->Fill(evPhcom, evThcom);
+                float ph0deg = evPh[0] * 180.0 / TMath::Pi();
+                float th0deg = evTh[0] * 180.0 / TMath::Pi();
+                hPh0Th0Flux[d]->Fill(ph0deg, th0deg);
             }
         }
     }
@@ -422,7 +437,7 @@ void collimatortest::Loop()
    // Create title area
    c0->cd();
    TPaveText *pave0 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave0->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave0->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave0->SetFillColor(0);
    pave0->SetBorderSize(0);
    pave0->SetTextSize(0.03);
@@ -459,7 +474,7 @@ void collimatortest::Loop()
    // Create title area
    c4->cd();
    TPaveText *pave4 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave4->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave4->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave4->SetFillColor(0);
    pave4->SetBorderSize(0);
    pave4->SetTextSize(0.03);
@@ -496,7 +511,7 @@ void collimatortest::Loop()
    // Create title area
    c5->cd();
    TPaveText *pave5 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave5->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave5->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave5->SetFillColor(0);
    pave5->SetBorderSize(0);
    pave5->SetTextSize(0.03);
@@ -533,7 +548,7 @@ void collimatortest::Loop()
    // Create title area
    c6->cd();
    TPaveText *pave6 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave6->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave6->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave6->SetFillColor(0);
    pave6->SetBorderSize(0);
    pave6->SetTextSize(0.03);
@@ -571,7 +586,7 @@ void collimatortest::Loop()
    // Create title area
    c7->cd();
    TPaveText *pave7 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave7->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave7->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave7->SetFillColor(0);
    pave7->SetBorderSize(0);
    pave7->SetTextSize(0.03);
@@ -603,8 +618,8 @@ void collimatortest::Loop()
    c7->Update();
    c7->SaveAs("canvas7_hitX_vs_hitY_flux_planes.png", "PNG");
 
-   // Canvas 8 (NEW): evPhcom vs evThcom for flux plane detectors in 5x4 grid
-   TCanvas* c8 = new TCanvas("c8", "Canvas 8: evPhcom vs evThcom (Flux Planes)", 1800, 2000);
+   // Canvas 8 (NEW): evPh[0] vs evTh[0] for flux plane detectors in 5x4 grid
+   TCanvas* c8 = new TCanvas("c8", "Canvas 8: evPh[0] vs evTh[0] (Flux Planes)", 1800, 2000);
    c8->SetTopMargin(0.08);
    c8->SetBottomMargin(0.08);
    
@@ -617,7 +632,7 @@ void collimatortest::Loop()
    // Create title area
    c8->cd();
    TPaveText *pave8 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave8->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave8->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave8->SetFillColor(0);
    pave8->SetBorderSize(0);
    pave8->SetTextSize(0.03);
@@ -644,10 +659,10 @@ void collimatortest::Loop()
       gPad->SetRightMargin(0.18);
       gPad->SetLeftMargin(0.13);
       gPad->SetGrid(1, 1);
-      hPhcomThcomFlux[d]->Draw("COLZ");
+      hPh0Th0Flux[d]->Draw("COLZ");
    }
    c8->Update();
-   c8->SaveAs("canvas8_evPhcom_vs_evThcom_flux_planes.png", "PNG");
+   c8->SaveAs("canvas8_evPh0_vs_evTh0_flux_planes.png", "PNG");
 
    // COMMENTED OUT - Focus on 15-detector plots
    /*
@@ -664,7 +679,7 @@ void collimatortest::Loop()
    // Create title area
    c1->cd();
    TPaveText *pave1 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave1->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave1->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
    pave1->SetFillColor(0);
    pave1->SetBorderSize(0);
    pave1->SetTextSize(0.036);
@@ -700,7 +715,7 @@ void collimatortest::Loop()
     // Create title area
     c2->cd();
     TPaveText *pave2 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave2->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+    pave2->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
     pave2->SetFillColor(0);
     pave2->SetBorderSize(0);
     pave2->SetTextSize(0.036);
@@ -735,7 +750,7 @@ void collimatortest::Loop()
     // Create title area
     c3->cd();
     TPaveText *pave3 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave3->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+    pave3->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
     pave3->SetFillColor(0);
     pave3->SetBorderSize(0);
     pave3->SetTextSize(0.036);
