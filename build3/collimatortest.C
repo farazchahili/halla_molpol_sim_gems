@@ -437,7 +437,7 @@ void collimatortest::Loop()
    // Create title area
    c0->cd();
    TPaveText *pave0 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave0->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave0->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave0->SetFillColor(0);
    pave0->SetBorderSize(0);
    pave0->SetTextSize(0.03);
@@ -474,7 +474,7 @@ void collimatortest::Loop()
    // Create title area
    c4->cd();
    TPaveText *pave4 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave4->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave4->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave4->SetFillColor(0);
    pave4->SetBorderSize(0);
    pave4->SetTextSize(0.03);
@@ -511,7 +511,7 @@ void collimatortest::Loop()
    // Create title area
    c5->cd();
    TPaveText *pave5 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave5->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave5->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave5->SetFillColor(0);
    pave5->SetBorderSize(0);
    pave5->SetTextSize(0.03);
@@ -548,7 +548,7 @@ void collimatortest::Loop()
    // Create title area
    c6->cd();
    TPaveText *pave6 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave6->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave6->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave6->SetFillColor(0);
    pave6->SetBorderSize(0);
    pave6->SetTextSize(0.03);
@@ -586,7 +586,7 @@ void collimatortest::Loop()
    // Create title area
    c7->cd();
    TPaveText *pave7 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave7->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave7->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave7->SetFillColor(0);
    pave7->SetBorderSize(0);
    pave7->SetTextSize(0.03);
@@ -632,7 +632,7 @@ void collimatortest::Loop()
    // Create title area
    c8->cd();
    TPaveText *pave8 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave8->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave8->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave8->SetFillColor(0);
    pave8->SetBorderSize(0);
    pave8->SetTextSize(0.03);
@@ -679,7 +679,7 @@ void collimatortest::Loop()
    // Create title area
    c1->cd();
    TPaveText *pave1 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave1->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+   pave1->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
    pave1->SetFillColor(0);
    pave1->SetBorderSize(0);
    pave1->SetTextSize(0.036);
@@ -715,7 +715,7 @@ void collimatortest::Loop()
     // Create title area
     c2->cd();
     TPaveText *pave2 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave2->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+    pave2->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
     pave2->SetFillColor(0);
     pave2->SetBorderSize(0);
     pave2->SetTextSize(0.036);
@@ -750,7 +750,7 @@ void collimatortest::Loop()
     // Create title area
     c3->cd();
     TPaveText *pave3 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave3->AddText("#phi collimator = 2cm, -40 < #phi_{cm} < 40");
+    pave3->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
     pave3->SetFillColor(0);
     pave3->SetBorderSize(0);
     pave3->SetTextSize(0.036);
