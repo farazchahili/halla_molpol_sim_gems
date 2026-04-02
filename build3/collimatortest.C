@@ -53,6 +53,53 @@ void collimatortest::Loop()
         "hitX vs hitY - Detector 201: Middle GEM tracker (GEM2);hitX [cm];hitY [cm]",
         "hitX vs hitY - Detector 202: Downstream GEM tracker (GEM3);hitX [cm];hitY [cm]"
     };
+
+    // Flux plane detectors (20 detectors in 5x4 grid, left side as columns 0-1, right side as columns 2-3)
+    const int detsFlux[20] = {100, 101, 150, 151, 110, 111, 160, 161, 120, 121, 170, 171, 130, 131, 180, 181, 140, 141, 190, 191};
+    const char* hXYFluxTitles[20] = {
+        "hitX vs hitY - Detector 100: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 101: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 150: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 151: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 110: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 111: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 160: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 161: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 120: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 121: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 170: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 171: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 130: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 131: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 180: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 181: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 140: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 141: Right Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 190: Left Side;hitX [cm];hitY [cm]",
+        "hitX vs hitY - Detector 191: Right Side;hitX [cm];hitY [cm]"
+    };
+    const char* hPhcomThcomFluxTitles[20] = {
+        "evPhcom vs evThcom - Detector 100: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 101: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 150: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 151: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 110: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 111: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 160: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 161: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 120: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 121: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 170: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 171: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 130: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 131: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 180: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 181: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 140: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 141: Right Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 190: Left Side;evPhcom [deg];evThcom [deg]",
+        "evPhcom vs evThcom - Detector 191: Right Side;evPhcom [deg];evThcom [deg]"
+    };
     const char* hPhcomThcomTitles12[15] = {
         "evPhcom vs evThcom - Detector 1: VP Quad 1 Entrance;evPhcom [deg];evThcom [deg]",
         "evPhcom vs evThcom - Detector 2: VP Quad 1 Exit;evPhcom [deg];evThcom [deg]",
@@ -116,6 +163,10 @@ void collimatortest::Loop()
     std::vector<float> minPh012(15, 1e9), maxPh012(15, -1e9), minTh012(15, 1e9), maxTh012(15, -1e9);
     std::vector<float> minE12(15, 1e9), maxE12(15, -1e9);
 
+    // For dynamic axis limits - flux plane detectors (20 detectors)
+    std::vector<float> minXFlux(20, 1e9), maxXFlux(20, -1e9), minYFlux(20, 1e9), maxYFlux(20, -1e9);
+    std::vector<float> minPhcomFlux(20, 1e9), maxPhcomFlux(20, -1e9), minThcomFlux(20, 1e9), maxThcomFlux(20, -1e9);
+
     // First pass: find min/max for each variable per detector
     Long64_t nentries = fChain->GetEntriesFast();
     for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
@@ -125,6 +176,7 @@ void collimatortest::Loop()
 
         bool hasHit[4] = {false, false, false, false};
         bool hasHit12[15] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+        bool hasHitFlux[20] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
         for (Int_t i = 0; i < hitN; ++i) {
             // Track original 4 detectors
@@ -151,6 +203,18 @@ void collimatortest::Loop()
                     minE12[d] = std::min(minE12[d], float(hitE[i]));
                     maxE12[d] = std::max(maxE12[d], float(hitE[i]));
                     hasHit12[d] = true;
+                }
+            }
+            // Track flux plane detectors
+            for (int d = 0; d < 20; ++d) {
+                if (hitDet[i] == detsFlux[d]) {
+                    float x = hitX[i] * 100.;
+                    float y = hitY[i] * 100.;
+                    minXFlux[d] = std::min(minXFlux[d], x);
+                    maxXFlux[d] = std::max(maxXFlux[d], x);
+                    minYFlux[d] = std::min(minYFlux[d], y);
+                    maxYFlux[d] = std::max(maxYFlux[d], y);
+                    hasHitFlux[d] = true;
                 }
             }
         }
@@ -182,6 +246,14 @@ void collimatortest::Loop()
                 maxTh012[d] = std::max(maxTh012[d], th0deg);
             }
         }
+        for (int d = 0; d < 20; ++d) {
+            if (hasHitFlux[d]) {
+                minPhcomFlux[d] = std::min(minPhcomFlux[d], float(evPhcom));
+                maxPhcomFlux[d] = std::max(maxPhcomFlux[d], float(evPhcom));
+                minThcomFlux[d] = std::min(minThcomFlux[d], float(evThcom));
+                maxThcomFlux[d] = std::max(maxThcomFlux[d], float(evThcom));
+            }
+        }
     }
 
     // Add a small margin to axis limits
@@ -201,6 +273,10 @@ void collimatortest::Loop()
     TH2F* hPhcomThcom12[15];
     TH2F* hPh0Th012[15];
     TH1F* hE12[15];
+    
+    // Create histograms with dynamic ranges - flux plane detectors (20 detectors)
+    TH2F* hXYFlux[20];
+    TH2F* hPhcomThcomFlux[20];
     
     for (int d = 0; d < 4; ++d) {
         auto xlim = margin(minX[d], maxX[d]);
@@ -248,6 +324,31 @@ void collimatortest::Loop()
         hE12[d] = new TH1F(Form("hE12_%d", dets12[d]), hETitles12[d], 100, elim12.first, elim12.second);
     }
 
+    // Initialize flux plane histograms
+    for (int d = 0; d < 20; ++d) {
+        // Set fixed Y limits for all detectors
+        double ylim_min = -16.0;
+        double ylim_max = 1.0;
+        
+        // Set X limits based on detector side (left ends with 0, right ends with 1)
+        double xlim_min, xlim_max;
+        if (detsFlux[d] % 10 == 0) {
+            // Left side (detector number ends with 0)
+            xlim_min = -6.5;
+            xlim_max = -2.5;
+        } else {
+            // Right side (detector number ends with 1)
+            xlim_min = 2.5;
+            xlim_max = 6.5;
+        }
+        
+        hXYFlux[d] = new TH2F(Form("hXYFlux_%d", detsFlux[d]), hXYFluxTitles[d], 500, xlim_min, xlim_max, 500, ylim_min, ylim_max);
+
+        auto phcomlim = margin(minPhcomFlux[d], maxPhcomFlux[d]);
+        auto thcomlim = margin(minThcomFlux[d], maxThcomFlux[d]);
+        hPhcomThcomFlux[d] = new TH2F(Form("hPhcomThcomFlux_%d", detsFlux[d]), hPhcomThcomFluxTitles[d], 500, phcomlim.first, phcomlim.second, 500, thcomlim.first, thcomlim.second);
+    }
+
     // Second pass: fill histograms
     for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
         Long64_t ientry = LoadTree(jentry);
@@ -256,6 +357,7 @@ void collimatortest::Loop()
 
         bool hasHit[4] = {false, false, false, false};
         bool hasHit12[15] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+        bool hasHitFlux[20] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 
         for (Int_t i = 0; i < hitN; ++i) {
             // Fill original 4
@@ -273,6 +375,13 @@ void collimatortest::Loop()
                     hasHit12[d] = true;
                 }
             }
+            // Fill flux plane detectors
+            for (int d = 0; d < 20; ++d) {
+                if (hitDet[i] == detsFlux[d]) {
+                    hXYFlux[d]->Fill(hitX[i] * 100., hitY[i] * 100.);
+                    hasHitFlux[d] = true;
+                }
+            }
         }
         for (int d = 0; d < 4; ++d) {
             if (hasHit[d]) {
@@ -288,6 +397,11 @@ void collimatortest::Loop()
                 float ph0deg = evPh[0] * 180.0 / TMath::Pi();
                 float th0deg = evTh[0] * 180.0 / TMath::Pi();
                 hPh0Th012[d]->Fill(ph0deg, th0deg);
+            }
+        }
+        for (int d = 0; d < 20; ++d) {
+            if (hasHitFlux[d]) {
+                hPhcomThcomFlux[d]->Fill(evPhcom, evThcom);
             }
         }
     }
@@ -308,7 +422,7 @@ void collimatortest::Loop()
    // Create title area
    c0->cd();
    TPaveText *pave0 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave0->AddText("#phi collimator = 0.2cm, -90 < #phi_{cm} < 90");
+   pave0->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
    pave0->SetFillColor(0);
    pave0->SetBorderSize(0);
    pave0->SetTextSize(0.03);
@@ -345,7 +459,7 @@ void collimatortest::Loop()
    // Create title area
    c4->cd();
    TPaveText *pave4 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave4->AddText("#phi collimator = 0.2cm, -90 < #phi_{cm} < 90");
+   pave4->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
    pave4->SetFillColor(0);
    pave4->SetBorderSize(0);
    pave4->SetTextSize(0.03);
@@ -382,7 +496,7 @@ void collimatortest::Loop()
    // Create title area
    c5->cd();
    TPaveText *pave5 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave5->AddText("#phi collimator = 0.2cm, -90 < #phi_{cm} < 90");
+   pave5->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
    pave5->SetFillColor(0);
    pave5->SetBorderSize(0);
    pave5->SetTextSize(0.03);
@@ -419,7 +533,7 @@ void collimatortest::Loop()
    // Create title area
    c6->cd();
    TPaveText *pave6 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave6->AddText("#phi collimator = 0.2cm, -90 < #phi_{cm} < 90");
+   pave6->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
    pave6->SetFillColor(0);
    pave6->SetBorderSize(0);
    pave6->SetTextSize(0.03);
@@ -442,6 +556,98 @@ void collimatortest::Loop()
    c6->Update();
    //c6->SaveAs("canvas6_hitE_all_detectors.pdf");
    c6->SaveAs("canvas6_hitE_all_detectors.png", "PNG");
+
+   // Canvas 7 (NEW): hitX vs hitY for flux plane detectors in 5x4 grid
+   TCanvas* c7 = new TCanvas("c7", "Canvas 7: hitX vs hitY (Flux Planes)", 1800, 2000);
+   c7->SetTopMargin(0.08);
+   c7->SetBottomMargin(0.08);
+   
+   // Create histogram area (leave 5% at top for title)
+   TPad *histPad7 = new TPad("histPad7", "histPad7", 0, 0, 1, 0.95);
+   histPad7->Draw();
+   histPad7->cd();
+   histPad7->Divide(4, 5);
+   
+   // Create title area
+   c7->cd();
+   TPaveText *pave7 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
+   pave7->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave7->SetFillColor(0);
+   pave7->SetBorderSize(0);
+   pave7->SetTextSize(0.03);
+   pave7->Draw();
+   
+   // Add separator line in the middle of canvas
+   TLine *line7 = new TLine(0.1, 0.955, 0.9, 0.955);
+   line7->SetNDC();
+   line7->Draw();
+   
+   // Add vertical separator line between columns 2 and 3
+   TLine *vertLine7 = new TLine(0.5, 0, 0.5, 0.95);
+   vertLine7->SetNDC();
+   vertLine7->Draw();
+   
+   // Draw histograms in the histogram area (5x4 grid with separator at column 2)
+   for (int d = 0; d < 20; ++d) {
+      // Calculate position: row and column within 5x4 grid
+      int row = d / 4;      // 0-4
+      int col = d % 4;      // 0-3
+      int padNum = row * 4 + col + 1;
+      
+      histPad7->cd(padNum);
+      gPad->SetRightMargin(0.18);
+      gPad->SetLeftMargin(0.13);
+      gPad->SetGrid(1, 1);
+      hXYFlux[d]->Draw("COLZ");
+   }
+   c7->Update();
+   c7->SaveAs("canvas7_hitX_vs_hitY_flux_planes.png", "PNG");
+
+   // Canvas 8 (NEW): evPhcom vs evThcom for flux plane detectors in 5x4 grid
+   TCanvas* c8 = new TCanvas("c8", "Canvas 8: evPhcom vs evThcom (Flux Planes)", 1800, 2000);
+   c8->SetTopMargin(0.08);
+   c8->SetBottomMargin(0.08);
+   
+   // Create histogram area (leave 5% at top for title)
+   TPad *histPad8 = new TPad("histPad8", "histPad8", 0, 0, 1, 0.95);
+   histPad8->Draw();
+   histPad8->cd();
+   histPad8->Divide(4, 5);
+   
+   // Create title area
+   c8->cd();
+   TPaveText *pave8 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
+   pave8->AddText("#phi collimator = 2cm, -90 < #phi_{cm} < 90");
+   pave8->SetFillColor(0);
+   pave8->SetBorderSize(0);
+   pave8->SetTextSize(0.03);
+   pave8->Draw();
+   
+   // Add separator line in the middle of canvas
+   TLine *line8 = new TLine(0.1, 0.955, 0.9, 0.955);
+   line8->SetNDC();
+   line8->Draw();
+   
+   // Add vertical separator line between columns 2 and 3
+   TLine *vertLine8 = new TLine(0.5, 0, 0.5, 0.95);
+   vertLine8->SetNDC();
+   vertLine8->Draw();
+   
+   // Draw histograms in the histogram area (5x4 grid with separator at column 2)
+   for (int d = 0; d < 20; ++d) {
+      // Calculate position: row and column within 5x4 grid
+      int row = d / 4;      // 0-4
+      int col = d % 4;      // 0-3
+      int padNum = row * 4 + col + 1;
+      
+      histPad8->cd(padNum);
+      gPad->SetRightMargin(0.18);
+      gPad->SetLeftMargin(0.13);
+      gPad->SetGrid(1, 1);
+      hPhcomThcomFlux[d]->Draw("COLZ");
+   }
+   c8->Update();
+   c8->SaveAs("canvas8_evPhcom_vs_evThcom_flux_planes.png", "PNG");
 
    // COMMENTED OUT - Focus on 15-detector plots
    /*
