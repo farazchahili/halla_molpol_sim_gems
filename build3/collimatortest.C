@@ -118,21 +118,21 @@ void collimatortest::Loop()
         "evPhcom vs evThcom - Detector 202: Downstream GEM tracker (GEM3);evPhcom [deg];evThcom [deg]"
     };
     const char* hPh0Th0Titles12[15] = {
-        "evPh[0] vs evTh[0] (degrees) - Detector 1: VP Quad 1 Entrance;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 2: VP Quad 1 Exit;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 3: VP Quad 2 Entrance;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 4: VP Quad 2 Exit;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 5: VP Quad 3 Entrance;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 6: VP Quad 3 Exit;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 7: VP Quad 4 Entrance;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 8: VP Quad 4 Exit;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 9: VP Detector (Full Size);evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 13: VP Detector Box;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 14: VP Dipole Entrance;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 15: VP Dipole Exit;evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 200: Upstream GEM tracker (GEM1);evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 201: Middle GEM tracker (GEM2);evPh[0] [deg];evTh[0] [deg]",
-        "evPh[0] vs evTh[0] (degrees) - Detector 202: Downstream GEM tracker (GEM3);evPh[0] [deg];evTh[0] [deg]"
+        "evPh vs evTh (Both Particles) - Detector 1: VP Quad 1 Entrance;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 2: VP Quad 1 Exit;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 3: VP Quad 2 Entrance;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 4: VP Quad 2 Exit;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 5: VP Quad 3 Entrance;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 6: VP Quad 3 Exit;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 7: VP Quad 4 Entrance;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 8: VP Quad 4 Exit;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 9: VP Detector (Full Size);evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 13: VP Detector Box;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 14: VP Dipole Entrance;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 15: VP Dipole Exit;evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 200: Upstream GEM tracker (GEM1);evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 201: Middle GEM tracker (GEM2);evPh [deg];evTh [deg]",
+        "evPh vs evTh (Both Particles) - Detector 202: Downstream GEM tracker (GEM3);evPh [deg];evTh [deg]"
     };
     const char* hETitles12[15] = {
         "Hit Energy - Detector 1: VP Quad 1 Entrance;hitE [GeV];Counts",
@@ -240,11 +240,22 @@ void collimatortest::Loop()
                 minThcom12[d] = std::min(minThcom12[d], float(evThcom));
                 maxThcom12[d] = std::max(maxThcom12[d], float(evThcom));
                 float ph0deg = evPh[0] * 180.0 / TMath::Pi();
+                float ph1deg = evPh[1] * 180.0 / TMath::Pi();
                 float th0deg = evTh[0] * 180.0 / TMath::Pi();
-                minPh012[d] = std::min(minPh012[d], ph0deg);
-                maxPh012[d] = std::max(maxPh012[d], ph0deg);
-                minTh012[d] = std::min(minTh012[d], th0deg);
-                maxTh012[d] = std::max(maxTh012[d], th0deg);
+                float th1deg = evTh[1] * 180.0 / TMath::Pi();
+                // Only include particles within valid physics range
+                if (ph0deg >= -90.0 && ph0deg <= 90.0) {
+                    minPh012[d] = std::min(minPh012[d], ph0deg);
+                    maxPh012[d] = std::max(maxPh012[d], ph0deg);
+                    minTh012[d] = std::min(minTh012[d], th0deg);
+                    maxTh012[d] = std::max(maxTh012[d], th0deg);
+                }
+                if (ph1deg >= -90.0 && ph1deg <= 90.0) {
+                    minPh012[d] = std::min(minPh012[d], ph1deg);
+                    maxPh012[d] = std::max(maxPh012[d], ph1deg);
+                    minTh012[d] = std::min(minTh012[d], th1deg);
+                    maxTh012[d] = std::max(maxTh012[d], th1deg);
+                }
             }
         }
         for (int d = 0; d < 20; ++d) {
@@ -254,11 +265,22 @@ void collimatortest::Loop()
                 minThcomFlux[d] = std::min(minThcomFlux[d], float(evThcom));
                 maxThcomFlux[d] = std::max(maxThcomFlux[d], float(evThcom));
                 float ph0deg = evPh[0] * 180.0 / TMath::Pi();
+                float ph1deg = evPh[1] * 180.0 / TMath::Pi();
                 float th0deg = evTh[0] * 180.0 / TMath::Pi();
-                minPh0Flux[d] = std::min(minPh0Flux[d], ph0deg);
-                maxPh0Flux[d] = std::max(maxPh0Flux[d], ph0deg);
-                minTh0Flux[d] = std::min(minTh0Flux[d], th0deg);
-                maxTh0Flux[d] = std::max(maxTh0Flux[d], th0deg);
+                float th1deg = evTh[1] * 180.0 / TMath::Pi();
+                // Only include particles within valid physics range
+                if (ph0deg >= -90.0 && ph0deg <= 90.0) {
+                    minPh0Flux[d] = std::min(minPh0Flux[d], ph0deg);
+                    maxPh0Flux[d] = std::max(maxPh0Flux[d], ph0deg);
+                    minTh0Flux[d] = std::min(minTh0Flux[d], th0deg);
+                    maxTh0Flux[d] = std::max(maxTh0Flux[d], th0deg);
+                }
+                if (ph1deg >= -90.0 && ph1deg <= 90.0) {
+                    minPh0Flux[d] = std::min(minPh0Flux[d], ph1deg);
+                    maxPh0Flux[d] = std::max(maxPh0Flux[d], ph1deg);
+                    minTh0Flux[d] = std::min(minTh0Flux[d], th1deg);
+                    maxTh0Flux[d] = std::max(maxTh0Flux[d], th1deg);
+                }
             }
         }
     }
@@ -278,13 +300,13 @@ void collimatortest::Loop()
     // Create histograms with dynamic ranges - all 15
     TH2F* hXY12[15];
     TH2F* hPhcomThcom12[15];
-    TH2F* hPh0Th012[15];
+    TH2F* hPh0Th012[15];  // Sum of both particles: (evPh[0]+evPh[1]) vs (evTh[0]+evTh[1])
     TH1F* hE12[15];
     
     // Create histograms with dynamic ranges - flux plane detectors (20 detectors)
     TH2F* hXYFlux[20];
     TH2F* hPhcomThcomFlux[20];
-    TH2F* hPh0Th0Flux[20];
+    TH2F* hPh0Th0Flux[20];  // Sum of both particles: (evPh[0]+evPh[1]) vs (evTh[0]+evTh[1])
     
     for (int d = 0; d < 4; ++d) {
         auto xlim = margin(minX[d], maxX[d]);
@@ -326,7 +348,8 @@ void collimatortest::Loop()
         hPhcomThcom12[d] = new TH2F(Form("hPhcomThcom12_%d", dets12[d]), hPhcomThcomTitles12[d], 500, phcomlim12.first, phcomlim12.second, 500, thcomlim12.first, thcomlim12.second);
 
         auto ph0lim12 = margin(minPh012[d], maxPh012[d]);
-        hPh0Th012[d] = new TH2F(Form("hPh0Th012_%d", dets12[d]), hPh0Th0Titles12[d], 500, ph0lim12.first, ph0lim12.second, 500, 0.0, 1.5);
+        auto th0lim12 = margin(minTh012[d], maxTh012[d]);
+        hPh0Th012[d] = new TH2F(Form("hPh0Th012_%d", dets12[d]), hPh0Th0Titles12[d], 500, ph0lim12.first, ph0lim12.second, 500, th0lim12.first, th0lim12.second);
         
         auto elim12 = margin(minE12[d], maxE12[d]);
         hE12[d] = new TH1F(Form("hE12_%d", dets12[d]), hETitles12[d], 100, elim12.first, elim12.second);
@@ -358,7 +381,7 @@ void collimatortest::Loop()
 
         auto ph0lim = margin(minPh0Flux[d], maxPh0Flux[d]);
         auto th0lim = margin(minTh0Flux[d], maxTh0Flux[d]);
-        hPh0Th0Flux[d] = new TH2F(Form("hPh0Th0Flux_%d", detsFlux[d]), Form("evPh[0] vs evTh[0] - Detector %d;evPh[0] [deg];evTh[0] [deg]", detsFlux[d]), 500, ph0lim.first, ph0lim.second, 500, th0lim.first, th0lim.second);
+        hPh0Th0Flux[d] = new TH2F(Form("hPh0Th0Flux_%d", detsFlux[d]), Form("evPh vs evTh (Both Particles) - Detector %d;evPh [deg];evTh [deg]", detsFlux[d]), 500, ph0lim.first, ph0lim.second, 500, th0lim.first, th0lim.second);
     }
 
     // Second pass: fill histograms
@@ -406,17 +429,35 @@ void collimatortest::Loop()
         for (int d = 0; d < 15; ++d) {
             if (hasHit12[d]) {
                 hPhcomThcom12[d]->Fill(evPhcom, evThcom);
+                // Fill with particle 0 (only if within valid physics range)
                 float ph0deg = evPh[0] * 180.0 / TMath::Pi();
                 float th0deg = evTh[0] * 180.0 / TMath::Pi();
-                hPh0Th012[d]->Fill(ph0deg, th0deg);
+                if (ph0deg >= -90.0 && ph0deg <= 90.0) {
+                    hPh0Th012[d]->Fill(ph0deg, th0deg);
+                }
+                // Fill with particle 1 (only if within valid physics range)
+                float ph1deg = evPh[1] * 180.0 / TMath::Pi();
+                float th1deg = evTh[1] * 180.0 / TMath::Pi();
+                if (ph1deg >= -90.0 && ph1deg <= 90.0) {
+                    hPh0Th012[d]->Fill(ph1deg, th1deg);
+                }
             }
         }
         for (int d = 0; d < 20; ++d) {
             if (hasHitFlux[d]) {
                 hPhcomThcomFlux[d]->Fill(evPhcom, evThcom);
+                // Fill with particle 0 (only if within valid physics range)
                 float ph0deg = evPh[0] * 180.0 / TMath::Pi();
                 float th0deg = evTh[0] * 180.0 / TMath::Pi();
-                hPh0Th0Flux[d]->Fill(ph0deg, th0deg);
+                if (ph0deg >= -90.0 && ph0deg <= 90.0) {
+                    hPh0Th0Flux[d]->Fill(ph0deg, th0deg);
+                }
+                // Fill with particle 1 (only if within valid physics range)
+                float ph1deg = evPh[1] * 180.0 / TMath::Pi();
+                float th1deg = evTh[1] * 180.0 / TMath::Pi();
+                if (ph1deg >= -90.0 && ph1deg <= 90.0) {
+                    hPh0Th0Flux[d]->Fill(ph1deg, th1deg);
+                }
             }
         }
     }
@@ -437,7 +478,7 @@ void collimatortest::Loop()
    // Create title area
    c0->cd();
    TPaveText *pave0 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave0->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave0->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave0->SetFillColor(0);
    pave0->SetBorderSize(0);
    pave0->SetTextSize(0.03);
@@ -474,7 +515,7 @@ void collimatortest::Loop()
    // Create title area
    c4->cd();
    TPaveText *pave4 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave4->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave4->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave4->SetFillColor(0);
    pave4->SetBorderSize(0);
    pave4->SetTextSize(0.03);
@@ -497,8 +538,8 @@ void collimatortest::Loop()
    //c4->SaveAs("canvas4_evPhcom_vs_evThcom_all_detectors.pdf");
    c4->SaveAs("canvas4_evPhcom_vs_evThcom_all_detectors.png", "PNG");
 
-   // Canvas 5 (NEW): evPh[0] vs evTh[0] for all 15 detectors in 5x3 grid
-   TCanvas* c5 = new TCanvas("c5", "Canvas 5: evPh[0] vs evTh[0] (All Detectors)", 1600, 2000);
+   // Canvas 5 (NEW): evPh_lab vs evTh_lab for all 15 detectors in 5x3 grid
+   TCanvas* c5 = new TCanvas("c5", "Canvas 5: evPh_lab vs evTh_lab (All Detectors)", 1600, 2000);
    c5->SetTopMargin(0.08);
    c5->SetBottomMargin(0.08);
    
@@ -511,7 +552,7 @@ void collimatortest::Loop()
    // Create title area
    c5->cd();
    TPaveText *pave5 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave5->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave5->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave5->SetFillColor(0);
    pave5->SetBorderSize(0);
    pave5->SetTextSize(0.03);
@@ -531,8 +572,8 @@ void collimatortest::Loop()
       hPh0Th012[d]->Draw("COLZ");
    }
    c5->Update();
-   //c5->SaveAs("canvas5_evPh0_vs_evTh0_all_detectors.pdf");
-   c5->SaveAs("canvas5_evPh0_vs_evTh0_all_detectors.png", "PNG");
+   //c5->SaveAs("canvas5_evPh_lab_vs_evTh_lab_all_detectors.pdf");
+   c5->SaveAs("canvas5_evPh_lab_vs_evTh_lab_all_detectors.png", "PNG");
 
    // Canvas 6 (NEW): hitE (Hit Energy) for all 15 detectors in 5x3 grid
    TCanvas* c6 = new TCanvas("c6", "Canvas 6: Hit Energy (All Detectors)", 1600, 2000);
@@ -548,7 +589,7 @@ void collimatortest::Loop()
    // Create title area
    c6->cd();
    TPaveText *pave6 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave6->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave6->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave6->SetFillColor(0);
    pave6->SetBorderSize(0);
    pave6->SetTextSize(0.03);
@@ -586,7 +627,7 @@ void collimatortest::Loop()
    // Create title area
    c7->cd();
    TPaveText *pave7 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave7->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave7->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave7->SetFillColor(0);
    pave7->SetBorderSize(0);
    pave7->SetTextSize(0.03);
@@ -618,8 +659,8 @@ void collimatortest::Loop()
    c7->Update();
    c7->SaveAs("canvas7_hitX_vs_hitY_flux_planes.png", "PNG");
 
-   // Canvas 8 (NEW): evPh[0] vs evTh[0] for flux plane detectors in 5x4 grid
-   TCanvas* c8 = new TCanvas("c8", "Canvas 8: evPh[0] vs evTh[0] (Flux Planes)", 1800, 2000);
+   // Canvas 8 (NEW): evPh_lab vs evTh_lab for flux plane detectors in 5x4 grid
+   TCanvas* c8 = new TCanvas("c8", "Canvas 8: evPh_lab vs evTh_lab (Flux Planes)", 1800, 2000);
    c8->SetTopMargin(0.08);
    c8->SetBottomMargin(0.08);
    
@@ -632,7 +673,7 @@ void collimatortest::Loop()
    // Create title area
    c8->cd();
    TPaveText *pave8 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave8->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave8->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave8->SetFillColor(0);
    pave8->SetBorderSize(0);
    pave8->SetTextSize(0.03);
@@ -662,7 +703,74 @@ void collimatortest::Loop()
       hPh0Th0Flux[d]->Draw("COLZ");
    }
    c8->Update();
-   c8->SaveAs("canvas8_evPh0_vs_evTh0_flux_planes.png", "PNG");
+   c8->SaveAs("canvas8_evPh_lab_vs_evTh_lab_flux_planes.png", "PNG");
+
+   // Canvas 9 (NEW): Event count on each detector
+   // Create arrays to count hits for each detector
+   const int detList1[14] = {1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 200, 201, 202, 9};
+   const int detList2[3] = {200};
+   
+   int hitCount1[14] = {0};  // For detectors 1,2,3,4,5,6,7,8,14,15,200,201,202,9
+   
+   // Count hits for each detector across all events
+   // Also fill 2D histogram of hitz vs hity for GEM tracker detector 200
+   TH2F* hGEMhitZhitY = new TH2F("hGEMhitZhitY", "GEM Tracker 1 - Detector 200 hits: hitZ vs hitY;hitZ [cm];hitY [cm]", 200, 559, 561, 200, -35, -10);
+   
+   for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
+       Long64_t ientry = LoadTree(jentry);
+       if (ientry < 0) break;
+       fChain->GetEntry(jentry);
+       
+       for (Int_t i = 0; i < hitN; ++i) {
+           // Count for first list
+           for (int d = 0; d < 14; ++d) {
+               if (hitDet[i] == detList1[d]) {
+                   hitCount1[d]++;
+               }
+           }
+           // Fill 2D histogram for detector 200 only
+           if (hitDet[i] == 200) {
+               hGEMhitZhitY->Fill(hitZ[i] * 100., hitY[i] * 100.);
+           }
+       }
+   }
+   
+   // Create histogram for detector counts
+   TH1F* hDetCount1 = new TH1F("hDetCount1", "Event Count on Each Detector;Detector;Hit Count", 14, -1.0, 15);
+   
+   // Fill histogram and set bin labels
+   for (int d = 0; d < 14; ++d) {
+       hDetCount1->SetBinContent(d + 1, hitCount1[d]);
+       hDetCount1->GetXaxis()->SetBinLabel(d + 1, Form("%d", detList1[d]));
+   }
+   
+   // Create canvas with 1 column, 2 rows
+   TCanvas* c9 = new TCanvas("c9", "Canvas 9: Detector Hit Counts", 1000, 900);
+   c9->Divide(1, 2);
+   
+   // Draw first histogram (top) - all detectors with bars
+   c9->cd(1);
+   gPad->SetGrid(1, 1);
+   gPad->SetLeftMargin(0.15);
+   gPad->SetRightMargin(0.08);
+   gPad->SetTopMargin(0.20);
+   gPad->SetBottomMargin(0.15);
+   hDetCount1->SetBarWidth(0.4);
+   hDetCount1->SetBarOffset(0.3);
+   hDetCount1->Draw("bar");
+   hDetCount1->GetXaxis()->SetLabelSize(0.08);
+   hDetCount1->GetXaxis()->SetNdivisions(14, 0, 0);
+   
+   // Draw second histogram (bottom) - GEM trackers hitZ vs hitY
+   c9->cd(2);
+   gPad->SetGrid(1, 1);
+   gPad->SetLeftMargin(0.12);
+   gPad->SetRightMargin(0.15);
+   gPad->SetBottomMargin(0.12);
+   hGEMhitZhitY->Draw("COLZ");
+   
+   c9->Update();
+   c9->SaveAs("canvas9_detector_hit_counts.png", "PNG");
 
    // COMMENTED OUT - Focus on 15-detector plots
    /*
@@ -679,7 +787,7 @@ void collimatortest::Loop()
    // Create title area
    c1->cd();
    TPaveText *pave1 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-   pave1->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+   pave1->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
    pave1->SetFillColor(0);
    pave1->SetBorderSize(0);
    pave1->SetTextSize(0.036);
@@ -715,7 +823,7 @@ void collimatortest::Loop()
     // Create title area
     c2->cd();
     TPaveText *pave2 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave2->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+    pave2->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
     pave2->SetFillColor(0);
     pave2->SetBorderSize(0);
     pave2->SetTextSize(0.036);
@@ -750,7 +858,7 @@ void collimatortest::Loop()
     // Create title area
     c3->cd();
     TPaveText *pave3 = new TPaveText(0.1, 0.96, 0.9, 0.99, "NDC");
-    pave3->AddText("#phi collimator = 0.2cm, -40 < #phi_{cm} < 40");
+    pave3->AddText("#phi collimator = 1.0cm, -40 < #phi_{cm} < 40");
     pave3->SetFillColor(0);
     pave3->SetBorderSize(0);
     pave3->SetTextSize(0.036);
