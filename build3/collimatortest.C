@@ -745,7 +745,7 @@ void collimatortest::Loop()
    }
    
    // Create canvas with 1 column, 2 rows
-   TCanvas* c9 = new TCanvas("c9", "Canvas 9: Detector Hit Counts", 1000, 900);
+   TCanvas* c9 = new TCanvas("c9", "Canvas 9: Detector Hit Counts", 700, 900);
    c9->Divide(1, 2);
    
    // Draw first histogram (top) - all detectors with bars
@@ -770,7 +770,7 @@ void collimatortest::Loop()
    hGEMhitZhitY->Draw("COLZ");
    
    c9->Update();
-   c9->SaveAs("canvas9_detector_hit_counts.png", "PNG");
+   c9->SaveAs("canvas9_detector_hit_counts.png", "PNG+100");
 
    // COMMENTED OUT - Focus on 15-detector plots
    /*
