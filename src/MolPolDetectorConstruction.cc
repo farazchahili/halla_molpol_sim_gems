@@ -1035,8 +1035,10 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   G4SubtractionSolid* maskSub2 = new G4SubtractionSolid("maskSub2", maskUnion1, ANGLESUBANGLE8pt5, pRot9, G4ThreeVector(0, -pPT1MASKHLY-pANGLESUBBOTX+(pPT1MASKHLZ+pPT2MASKHLZ)*tan(pANGLEBOTCUT), -pPT2MASKHLZ) );
   G4SubtractionSolid* maskSub3 = new G4SubtractionSolid("maskSub3", maskSub2, ANGLESUBANGLE6pt3, pRotWin, G4ThreeVector(0, -pWinDown+pPT1MASKHLY-0.5*(pPT1MASKHLZ+pPT2MASKHLZ)*tan(pANGLETOPCUT)-pANGLEWINUPPERX, -pPT2MASKHLZ) );
   G4SubtractionSolid* maskSub4 = new G4SubtractionSolid("maskSub4", maskSub3, ANGLESUBANGLE7pt5, pRotWin, G4ThreeVector(0, -pWinDown+pPT1MASKHLY-0.5*(pPT1MASKHLZ+pPT2MASKHLZ)*tan(pANGLETOPCUT)-pANGLEWINLOWERX-(pPT1MASKHLZ+pPT2MASKHLZ)*(tan(pANGLEWINLOWER)-tan(pANGLEWINUPPER)), -pPT2MASKHLZ) );  
+  //for tunsgten mask use the line below
   G4LogicalVolume* maskSub4Log = new G4LogicalVolume(maskSub4, G4Material::GetMaterial("MolPol_WCuMix"), "maskSub4Log", 0, 0, 0);  
-
+  //for kryptonite mask use the line below
+  //G4LogicalVolume* maskSub4Log = new G4LogicalVolume(maskSub4, G4Material::GetMaterial("Kryptonite"), "maskSub4Log", 0, 0, 0);
   
   maskSub4Log->SetVisAttributes( WCuNiVisAtt );
 
@@ -1083,6 +1085,9 @@ void MolPolDetectorConstruction::ConstructMaterials(){
   WCuMix->AddElement(W, 0.85);
   WCuMix->AddElement(Cu, 0.15);
 
+  //mask of carbon
+  //G4Material* WCuMix = new G4Material("MolPol_WCuMix", density, 1);
+  //WCuMix->AddElement(C, 1.0);
 
   // INFORMATION FROM SANGHWA
   density = 7.93 *g/cm3;

@@ -41,6 +41,7 @@ void MolPolSteppingAction::UserSteppingAction(const G4Step *aStep) {
        aTrack->GetVolume()->GetName() != "Target"  &&
        aTrack->GetVolume()->GetName() != "DipoleExitWindowR" &&
        aTrack->GetVolume()->GetName() != "DipoleExitWindowL"&&
+       aTrack->GetVolume()->GetName() != "detectorMask_PV" &&
       !isInGEM)
     {
       aTrack->SetTrackStatus(fStopAndKill);
