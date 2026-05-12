@@ -465,6 +465,7 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   MolPolDetector* DETVP  = new MolPolDetector("vp",   13);
   MolPolDetector* DPIN   = new MolPolDetector("dpin", 14);
   MolPolDetector* DPOUT  = new MolPolDetector("dpout",15);
+  MolPolDetector* MaskSD = new MolPolDetector("mask", 205);
 
   G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
@@ -483,6 +484,7 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   SDman->AddNewDetector(DETVP );
   SDman->AddNewDetector(DPIN  );
   SDman->AddNewDetector(DPOUT );
+  SDman->AddNewDetector(MaskSD);
 
   Q1ENLogical->SetSensitiveDetector(Q1ENSD);
   Q1EXLogical->SetSensitiveDetector(Q1EXSD);
@@ -1041,6 +1043,7 @@ G4VPhysicalVolume* MolPolDetectorConstruction::Construct() {
   //G4LogicalVolume* maskSub4Log = new G4LogicalVolume(maskSub4, G4Material::GetMaterial("Kryptonite"), "maskSub4Log", 0, 0, 0);
   
   maskSub4Log->SetVisAttributes( WCuNiVisAtt );
+  maskSub4Log->SetSensitiveDetector(MaskSD);
 
   new G4PVPlacement(0 , G4ThreeVector( 0, pYShift+pMDBXPos_Y, pZPlace ) , maskSub4Log ,   "detectorMask_PV" ,   world_log , 0 , 0 , fCheckOverlaps);
 
