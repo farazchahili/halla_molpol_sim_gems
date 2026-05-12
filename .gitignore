@@ -17,7 +17,7 @@
 !build3/plots/
 !build3/plots/**/*.pdf
 !build3/plots/**/*.png
-!build4/*.pdf
+
 
 #ignore build and map directory
 build*
@@ -28,6 +28,7 @@ build3/*
 !build3/collimatortest.h
 !build4
 build4/*
+!build4/*.pdf
 
 #ignore log and rootfiles directory
 log
