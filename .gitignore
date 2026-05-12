@@ -29,6 +29,7 @@ build3/*
 !build4
 build4/*
 !build4/*.pdf
+!build4/*.png
 
 #ignore log and rootfiles directory
 log
